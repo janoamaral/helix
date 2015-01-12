@@ -96,6 +96,7 @@
     <Compile Include="src\SQLBase.vb" />
     <Compile Include="src\SQLCore.vb" />
     <Compile Include="src\SQLEngine.vb" />
+    <Compile Include="src\SQLEngineBuilder.vb" />
     <Compile Include="src\SQLEngineDB.vb" />
     <Compile Include="src\SQLEngineDelete.vb" />
     <Compile Include="src\SQLEngineInsert.vb" />

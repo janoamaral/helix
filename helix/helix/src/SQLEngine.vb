@@ -32,7 +32,7 @@ Public Class SQLEngine
     ''' <summary>
     ''' Constante con el final de la cadena de conexion a SQL Server
     ''' </summary>
-    Private Const _SQLServerConnTrailer As String = "Connect Timeout=15;Encrypt=False;TrustServerCertificate=False"
+    Private Const _SQLServerConnTrailer As String = "Connect Timeout=30;Encrypt=False;TrustServerCertificate=False"
     '<--! FIN CONSTANTES -->
 
 
