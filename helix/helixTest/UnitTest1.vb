@@ -13,6 +13,17 @@ Imports helix
         Assert.IsTrue(a.Start)
     End Sub
 
+    <TestMethod()> Public Sub DbHelixConnection()
+        Dim a As New SQLEngineBuilder
+        With a
+            .DataBaseName = "helix"
+            .DatabaseType = SQLEngine.dataBaseType.SQL_SERVER
+            .RequireCredentials = False
+            .ServerName = My.Computer.Name & "\SQLEXPRESS"
+            Assert.IsTrue(.TestConnection())
+        End With
+    End Sub
+
     <TestMethod()> Public Sub SQLEngineBuilderConnection()
         Dim a As New SQLEngineBuilder
         With a
@@ -28,7 +39,7 @@ Imports helix
         Dim a As New SQLEngineBuilder
         With a
             .DataBaseName = "helix"
-            .SQLDbProperties.dbFullPath = "G:\Dev\helix\helix\helix\bin\Debug"
+            .SQLDbProperties.dbFullPath = "G:\Dev\helix\helix\helix\bin\Debug\"
             .DatabaseType = SQLEngine.dataBaseType.SQL_SERVER
             .RequireCredentials = False
             .ServerName = My.Computer.Name & "\SQLEXPRESS"

@@ -303,185 +303,178 @@ Public Class SQLEngineBuilder
                 End If
 
 
-                'tmpStr += strAlterPrefix & "ANSI_WARNINGS "
-                'If SQLDbProperties.ansiWarnings = True Then
-                '    tmpStr += "ON;"
-                'Else
-                '    tmpStr += "OFF;"
-                'End If
+                tmpStr += strAlterPrefix & "ANSI_WARNINGS "
+                If SQLDbProperties.ansiWarnings = True Then
+                    tmpStr += "ON;"
+                Else
+                    tmpStr += "OFF;"
+                End If
 
 
-                'tmpStr += strAlterPrefix & "ARITHABORT "
-                'If SQLDbProperties.arithmeticAbort = True Then
-                '    tmpStr += "ON;"
-                'Else
-                '    tmpStr += "OFF;"
-                'End If
+                tmpStr += strAlterPrefix & "ARITHABORT "
+                If SQLDbProperties.arithmeticAbort = True Then
+                    tmpStr += "ON;"
+                Else
+                    tmpStr += "OFF;"
+                End If
 
 
-                'tmpStr += strAlterPrefix & "AUTO_CLOSE "
-                'If SQLDbProperties.autoClose = True Then
-                '    tmpStr += "ON;"
-                'Else
-                '    tmpStr += "OFF;"
-                'End If
+                tmpStr += strAlterPrefix & "AUTO_CLOSE "
+                If SQLDbProperties.autoClose = True Then
+                    tmpStr += "ON;"
+                Else
+                    tmpStr += "OFF;"
+                End If
 
 
-                'tmpStr += strAlterPrefix & "AUTO_SHRINK "
-                'If SQLDbProperties.autoClose = True Then
-                '    tmpStr += "ON;"
-                'Else
-                '    tmpStr += "OFF;"
-                'End If
+                tmpStr += strAlterPrefix & "AUTO_SHRINK "
+                If SQLDbProperties.autoClose = True Then
+                    tmpStr += "ON;"
+                Else
+                    tmpStr += "OFF;"
+                End If
 
 
-                'tmpStr += strAlterPrefix & "AUTO_CREATE_STATISTICS "
-                'If SQLDbProperties.autoCreateStatistics = True Then
-                '    tmpStr += "ON;"
-                'Else
-                '    tmpStr += "OFF;"
-                'End If
+                tmpStr += strAlterPrefix & "AUTO_CREATE_STATISTICS "
+                If SQLDbProperties.autoCreateStatistics = True Then
+                    tmpStr += "ON;"
+                Else
+                    tmpStr += "OFF;"
+                End If
 
 
-                'tmpStr += strAlterPrefix & "AUTO_UPDATE_STATISTICS "
-                'If SQLDbProperties.autoUpdateStatistics = True Then
-                '    tmpStr += "ON;"
-                'Else
-                '    tmpStr += "OFF;"
-                'End If
+                tmpStr += strAlterPrefix & "AUTO_UPDATE_STATISTICS "
+                If SQLDbProperties.autoUpdateStatistics = True Then
+                    tmpStr += "ON;"
+                Else
+                    tmpStr += "OFF;"
+                End If
 
 
-                'tmpStr += strAlterPrefix & "CURSOR_CLOSE_ON_COMMIT "
-                'If SQLDbProperties.cursorCloseOnCommit = True Then
-                '    tmpStr += "ON;"
-                'Else
-                '    tmpStr += "OFF;"
-                'End If
+                tmpStr += strAlterPrefix & "CURSOR_CLOSE_ON_COMMIT "
+                If SQLDbProperties.cursorCloseOnCommit = True Then
+                    tmpStr += "ON;"
+                Else
+                    tmpStr += "OFF;"
+                End If
 
 
-                'tmpStr += strAlterPrefix & "CURSOR_DEFAULT "
-                'Select Case SQLDbProperties.cursorDefault
-                '    Case cursorType.GLOBAL_CURSOR
-                '        tmpStr += "GLOBAL;"
-                '    Case cursorType.LOCAL_CURSOR
-                '        tmpStr += "LOCAL;"
-                'End Select
+                tmpStr += strAlterPrefix & "CURSOR_DEFAULT "
+                Select Case SQLDbProperties.cursorDefault
+                    Case cursorType.GLOBAL_CURSOR
+                        tmpStr += "GLOBAL;"
+                    Case cursorType.LOCAL_CURSOR
+                        tmpStr += "LOCAL;"
+                End Select
 
-                'tmpStr += strAlterPrefix & "CONCAT_NULL_YIELDS_NULL "
-                'If SQLDbProperties.concatenateNullYieldsNull = True Then
-                '    tmpStr += "ON;"
-                'Else
-                '    tmpStr += "OFF;"
-                'End If
-
-
-                'tmpStr += strAlterPrefix & "NUMERIC_ROUNDABORT "
-                'If SQLDbProperties.numericRoundAbort = True Then
-                '    tmpStr += "ON;"
-                'Else
-                '    tmpStr += "OFF;"
-                'End If
+                tmpStr += strAlterPrefix & "CONCAT_NULL_YIELDS_NULL "
+                If SQLDbProperties.concatenateNullYieldsNull = True Then
+                    tmpStr += "ON;"
+                Else
+                    tmpStr += "OFF;"
+                End If
 
 
-                'tmpStr += strAlterPrefix & "QUOTED_IDENTIFIER "
-                'If SQLDbProperties.quotedIdentifier = True Then
-                '    tmpStr += "ON;"
-                'Else
-                '    tmpStr += "OFF;"
-                'End If
+                tmpStr += strAlterPrefix & "NUMERIC_ROUNDABORT "
+                If SQLDbProperties.numericRoundAbort = True Then
+                    tmpStr += "ON;"
+                Else
+                    tmpStr += "OFF;"
+                End If
 
 
-                'tmpStr += strAlterPrefix & "RECURSIVE_TRIGGERS "
-                'If SQLDbProperties.recursiveTriggers = True Then
-                '    tmpStr += "ON;"
-                'Else
-                '    tmpStr += "OFF;"
-                'End If
+                tmpStr += strAlterPrefix & "QUOTED_IDENTIFIER "
+                If SQLDbProperties.quotedIdentifier = True Then
+                    tmpStr += "ON;"
+                Else
+                    tmpStr += "OFF;"
+                End If
 
 
-                'tmpStr += strAlterPrefix & "AUTO_UPDATE_STATISTICS_ASYNC "
-                'If SQLDbProperties.autoUpdateStatisticsAsync = True Then
-                '    tmpStr += "ON;"
-                'Else
-                '    tmpStr += "OFF;"
-                'End If
+                tmpStr += strAlterPrefix & "RECURSIVE_TRIGGERS "
+                If SQLDbProperties.recursiveTriggers = True Then
+                    tmpStr += "ON;"
+                Else
+                    tmpStr += "OFF;"
+                End If
 
 
-                'tmpStr += strAlterPrefix & "DATE_CORRELATION_OPTIMIZATION "
-                'If SQLDbProperties.dateCorrelationOptimization = True Then
-                '    tmpStr += "ON;"
-                'Else
-                '    tmpStr += "OFF;"
-                'End If
+                tmpStr += strAlterPrefix & "AUTO_UPDATE_STATISTICS_ASYNC "
+                If SQLDbProperties.autoUpdateStatisticsAsync = True Then
+                    tmpStr += "ON;"
+                Else
+                    tmpStr += "OFF;"
+                End If
 
 
-                'tmpStr += strAlterPrefix & "PARAMETERIZATION "
-                'Select Case SQLDbProperties.parameterization
-                '    Case parametizationType.SIMPLE
-                '        tmpStr += "SIMPLE;"
-                '    Case parametizationType.FORCED
-                '        tmpStr += "FORCED;"
-                'End Select
+                tmpStr += strAlterPrefix & "DATE_CORRELATION_OPTIMIZATION "
+                If SQLDbProperties.dateCorrelationOptimization = True Then
+                    tmpStr += "ON;"
+                Else
+                    tmpStr += "OFF;"
+                End If
 
 
-                'tmpStr += strAlterPrefix & "READ_COMMITTED_SNAPSHOT "
-                'If SQLDbProperties.readCommittedSnapshot = True Then
-                '    tmpStr += "ON;"
-                'Else
-                '    tmpStr += "OFF;"
-                'End If
+                tmpStr += strAlterPrefix & "PARAMETERIZATION "
+                Select Case SQLDbProperties.parameterization
+                    Case parametizationType.SIMPLE
+                        tmpStr += "SIMPLE;"
+                    Case parametizationType.FORCED
+                        tmpStr += "FORCED;"
+                End Select
 
 
-                ''tmpStr += strAlterPrefix & "READ_WRITE "
-                ''If SQLDbProperties.readWrite = True Then
-                ''tmpStr += "ON;"
-                ''Else
-                ''tmpStr += "OFF;"
-                ''End If
-
-                'tmpStr += strAlterPrefix & "RECOVERY "
-                'Select Case SQLDbProperties.recovery
-                '    Case recoveryType.FULL
-                '        tmpStr += "FULL;"
-                '    Case recoveryType.BULK_LOGGED
-                '        tmpStr += "BULK_LOGGED;"
-                '    Case recoveryType.SIMPLE
-                '        tmpStr += "SIMPLE;"
-                'End Select
-
-                'tmpStr += strAlterPrefix & " "
-                'Select Case SQLDbProperties.restrictAccess
-                '    Case accessType.MULTI_USER
-                '        tmpStr += "MULTI_USER;"
-                '    Case accessType.SINGLE_USER
-                '        tmpStr += "SINGLE;"
-                '    Case accessType.RESTRICTED_USER
-                '        tmpStr += "RESTRICTED_USER;"
-                'End Select
-
-                'tmpStr += strAlterPrefix & "PAGE_VERIFY "
-                'Select Case SQLDbProperties.pageVerify
-                '    Case pageVerifyType.CHECKSUM
-                '        tmpStr += "CHECKSUM;"
-                '    Case pageVerifyType.NONE
-                '        tmpStr += "NONE;"
-                '    Case pageVerifyType.TORN_PAGE_DETECTION
-                '        tmpStr += "TORN_PAGE_DETECTION;"
-                'End Select
+                tmpStr += strAlterPrefix & "READ_COMMITTED_SNAPSHOT "
+                If SQLDbProperties.readCommittedSnapshot = True Then
+                    tmpStr += "ON;"
+                Else
+                    tmpStr += "OFF;"
+                End If
 
 
-                'tmpStr += strAlterPrefix & "TARGET_RECOVERY_TIME = " & SQLDbProperties.targetRecoveryTime.ToString & "SECONDS;"
+                tmpStr += strAlterPrefix & "RECOVERY "
+                Select Case SQLDbProperties.recovery
+                    Case recoveryType.FULL
+                        tmpStr += "FULL;"
+                    Case recoveryType.BULK_LOGGED
+                        tmpStr += "BULK_LOGGED;"
+                    Case recoveryType.SIMPLE
+                        tmpStr += "SIMPLE;"
+                End Select
+
+                tmpStr += strAlterPrefix & " "
+                Select Case SQLDbProperties.restrictAccess
+                    Case accessType.MULTI_USER
+                        tmpStr += "MULTI_USER;"
+                    Case accessType.SINGLE_USER
+                        tmpStr += "SINGLE;"
+                    Case accessType.RESTRICTED_USER
+                        tmpStr += "RESTRICTED_USER;"
+                End Select
+
+                tmpStr += strAlterPrefix & "PAGE_VERIFY "
+                Select Case SQLDbProperties.pageVerify
+                    Case pageVerifyType.CHECKSUM
+                        tmpStr += "CHECKSUM;"
+                    Case pageVerifyType.NONE
+                        tmpStr += "NONE;"
+                    Case pageVerifyType.TORN_PAGE_DETECTION
+                        tmpStr += "TORN_PAGE_DETECTION;"
+                End Select
 
 
-                'tmpStr += strAlterPrefix & "DELAYED_DURABILITY = "
-                'Select Case SQLDbProperties.delayedDurability
-                '    Case delayedDurabilityType.DISABLED
-                '        tmpStr += "DISABLED;"
-                '    Case delayedDurabilityType.ALLOWED
-                '        tmpStr += "ALLOWED;"
-                '    Case delayedDurabilityType.FORCED
-                '        tmpStr += "FORCED;"
-                'End Select
+                tmpStr += strAlterPrefix & "TARGET_RECOVERY_TIME = " & SQLDbProperties.targetRecoveryTime.ToString & "SECONDS;"
+
+
+                tmpStr += strAlterPrefix & "DELAYED_DURABILITY = "
+                Select Case SQLDbProperties.delayedDurability
+                    Case delayedDurabilityType.DISABLED
+                        tmpStr += "DISABLED;"
+                    Case delayedDurabilityType.ALLOWED
+                        tmpStr += "ALLOWED;"
+                    Case delayedDurabilityType.FORCED
+                        tmpStr += "FORCED;"
+                End Select
 
                 'If SQLDbProperties.isWindowsAuthenticated = True Then
                 '    tmpStr += "USE [" & _DataBaseName & "];" & "IF NOT EXISTS (SELECT name FROM sys.filegroups WHERE is_default=1 AND name = N'PRIMARY') ALTER DATABASE [" & _
@@ -491,13 +484,14 @@ Public Class SQLEngineBuilder
                 Dim tmpCore As New SQLCore
                 tmpCore.dbType = DatabaseType.SQL_SERVER
                 Dim tmpdbname = _DataBaseName
-                ' Guarda el nombre de la base de datos del usuario en una variable temporaria porque la cadena de conexion
-                ' no se puede conectar a la base de datos que todavia no existe
-                _DataBaseName = "master"
                 tmpCore.ConnectionString = GenerateConnectionString()
-                _DataBaseName = tmpdbname
                 Return tmpCore.ExecuteNonQuery(tmpStr)
         End Select
+        Return False
+    End Function
+
+    Public Function CreateTable() As Boolean
+
         Return False
     End Function
 
