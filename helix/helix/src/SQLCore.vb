@@ -259,6 +259,22 @@ Public Class SQLCore
         End Using
     End Function
 
+    Public Overloads Function ExecuteNonQuery(ByVal commandString As String) As Boolean
+        Using connection As New SqlConnection(_connectionString)
+            Dim command As New SqlCommand(commandString, connection)
+
+            Try
+                connection.Open()
+                command.ExecuteNonQuery()
+                connection.Close()
+                Return True
+            Catch ex As Exception
+                Console.Write(ex.Message)
+                Return False
+            End Try
+        End Using
+    End Function
+
 
     ''' <summary>
     ''' Ejecuta una consulta contra una base de datos
