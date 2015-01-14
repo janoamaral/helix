@@ -21,7 +21,7 @@ Public Class Ermac
     ''' <value>Booleano indicando el estado. True: el archivo esta oculto, False: el archivo esta visible</value>
     ''' <returns>La </returns>
     ''' <remarks></remarks>
-    Public Property isHidden As Boolean = False
+    Public Property isHidden As Boolean = True
 
     ''' <summary>
     ''' Nivel de detalle de logueo
@@ -79,17 +79,22 @@ Public Class Ermac
     ''' <remarks></remarks>
     Public Property ErrorLevel As Byte = 0
 
+    ''' <summary>
+    ''' Guarda una entrada de error en el log
+    ''' </summary>
+    ''' <returns>True si se pudo crear el archivo y/o guardar la entrada, False si fallo</returns>
+    ''' <remarks></remarks>
     Public Function Save() As Boolean
         If My.Computer.FileSystem.FileExists(_LogFilePath) Then
             Dim lineString As String
 
             lineString = _Timestamp.ToString & "    "
-            lineString &= "Level: " & _ErrorLevel & "    "
+            lineString &= "Level:" & _ErrorLevel & "    "
+            lineString &= "Code:" & _Code & "    "
             lineString &= _SubSystem & "    "
-            lineString &= "Code: " & _Code & "    "
 
             If _LogLevel = 2 Then
-                lineString &= "Module: " & _ModuleName & "    "
+                lineString &= "FUNC: " & _ModuleName & "    "
                 lineString &= _Description
             End If
 
@@ -98,9 +103,11 @@ Public Class Ermac
                     sw.WriteLine(lineString)
                 End Using
             End If
+            Return True
         Else
             CreateLogFile()
             Save()
+            Return True
         End If
         Return False
     End Function

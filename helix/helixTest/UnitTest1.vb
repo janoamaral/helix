@@ -61,7 +61,7 @@ Imports helix
 
     <TestMethod()> Public Sub LogCreation()
         Dim newLog As New Ermac
-        newLog.LogFilePath = "G:\Dev\helix\helix\syslog.log"
+        newLog.LogLevel = 2
         newLog.ErrorLevel = 2
         newLog.Code = 1
         newLog.Description = "Esto es una prueba"

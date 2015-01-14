@@ -173,6 +173,7 @@ Public Class SQLEngineBuilder
         Dim isWindowsAuthenticated As Boolean
     End Structure
 
+    Public LastError As New Ermac
 
     Public SQLDbProperties As SQLServerDBProperties
 
