@@ -260,9 +260,16 @@ Public Class SQLEngineBuilder
         Return False
     End Function
 
+
+    ''' <summary>
+    ''' Crea una base de datos en el destino seleccionado
+    ''' </summary>
+    ''' <returns>True si se creo con exito, False si fallo</returns>
+    ''' <remarks></remarks>
     Public Function CreateNewDataBase() As Boolean
         Select Case _DatabaseType
             Case SQLEngine.dataBaseType.MS_ACCESS
+                ' TODO: Crear base de datos en ms access
             Case SQLEngine.dataBaseType.SQL_SERVER
                 Dim tmpStr As String
 
@@ -483,16 +490,225 @@ Public Class SQLEngineBuilder
 
                 Dim tmpCore As New SQLCore
                 tmpCore.dbType = DatabaseType.SQL_SERVER
-                Dim tmpdbname = _DataBaseName
                 tmpCore.ConnectionString = GenerateConnectionString()
                 Return tmpCore.ExecuteNonQuery(tmpStr)
         End Select
         Return False
     End Function
 
-    Public Function CreateTable() As Boolean
 
+    ''' <summary>
+    ''' Ejecuta el script de creacion de tabla en la base de datos 
+    ''' </summary>
+    ''' <returns>True si se ejecuto el script con exito, False si fallo</returns>
+    ''' <remarks></remarks>
+    Public Function CreateTable() As Boolean
+        Select Case _DatabaseType
+            Case SQLEngine.dataBaseType.MS_ACCESS
+                ' TODO: Crear tablas en MS Access
+            Case SQLEngine.dataBaseType.SQL_SERVER
+                Dim tmpCore As New SQLCore
+                tmpCore.dbType = DatabaseType.SQL_SERVER
+                tmpCore.ConnectionString = GenerateConnectionString() & ";Initial Catalog=" & _DataBaseName & ";"
+                Dim comm As String = generateTableScript()
+                Return tmpCore.ExecuteNonQuery(comm)
+        End Select
         Return False
     End Function
+
+
+    ''' <summary>
+    ''' Genera el comando para crear las tablas
+    ''' </summary>
+    ''' <returns>Cadena con el comando para crear la/s tablas</returns>
+    ''' <remarks></remarks>
+    Private Function generateTableScript() As String
+
+        Dim scriptLine As String = ""
+        Dim tmpScript As String = ""
+        tmpScript = "SET QUOTED_IDENTIFIER ON;SET ARITHABORT ON;SET NUMERIC_ROUNDABORT OFF;SET CONCAT_NULL_YIELDS_NULL ON;SET ANSI_NULLS ON;SET ANSI_PADDING ON;SET ANSI_WARNINGS ON;"
+
+        If _ModelPath.Length = 0 Or My.Computer.FileSystem.FileExists(_ModelPath) = False Then
+            Return False
+        End If
+
+        Dim lineReader As New System.IO.StreamReader(_ModelPath)
+        Dim splitLine As String()
+
+        ' Comienzo de lectura del archivo modelo
+        Do While lineReader.Peek() <> -1
+            scriptLine = lineReader.ReadLine()
+
+            If scriptLine.StartsWith("DATABASE_NAME") Then
+                splitLine = scriptLine.Split("=")
+                If splitLine.GetLength(0) >= 2 Then
+                    _DataBaseName = splitLine(1).Trim(" ")
+                Else
+                    Return False
+                End If
+            End If
+
+            If scriptLine.StartsWith("DATABASE_TYPE") Then
+                splitLine = scriptLine.Split("=")
+                If splitLine.GetLength(0) >= 2 Then
+                    Select Case splitLine(1).Trim(" ").ToUpper
+                        Case "MS_ACCESS"
+                            _DatabaseType = SQLEngine.dataBaseType.MS_ACCESS
+                        Case "SQL_SERVER"
+                            _DatabaseType = SQLEngine.dataBaseType.SQL_SERVER
+                    End Select
+                Else
+                    Return False
+                End If
+            End If
+
+            If scriptLine.StartsWith("TABLE") Then
+                Dim tableName As String = ""
+                splitLine = scriptLine.Split(" ")
+                If splitLine.GetLength(0) >= 2 Then
+                    tableName = splitLine(1).Trim(" ")
+                    tmpScript &= "CREATE TABLE dbo." & tableName & "("
+                Else
+                    Return False
+                End If
+
+                Dim pkField As String = ""
+                Do While (lineReader.Peek() <> -1) And (scriptLine.ToUpper.Trim(" ") <> "END TABLE")
+                    scriptLine = lineReader.ReadLine()
+                    Dim processLine As String = ParseTableField(scriptLine, splitLine(1).Trim(" "))
+
+                    If processLine.StartsWith("ISPK_") Then
+                        processLine = processLine.Replace("ISPK_", "")
+                        pkField = processLine.Split(" ")(0).Trim(" ")
+                    End If
+                    tmpScript &= processLine
+                Loop
+
+                tmpScript = tmpScript.Trim(",") & ") ON [PRIMARY];"
+                tmpScript &= "ALTER TABLE dbo." & tableName & "  ADD CONSTRAINT PK_" & tableName & " PRIMARY KEY CLUSTERED (" & _
+                             pkField & ") WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY];"
+                tmpScript &= "ALTER TABLE dbo." & tableName & " SET (LOCK_ESCALATION = TABLE);"
+
+            End If
+        Loop
+
+        Return tmpScript
+    End Function
+
+
+    Private Function ParseTableField(ByVal line As String, Optional tableName As String = "") As String
+
+        ' Estructura del archivo script
+        ' DATABASE_NAME = helix
+        ' DATABASE_TYPE = SQL_SERVER
+
+        ' TABLE table1
+        ' pk_field = pk, auto:1/1
+        ' string_std = string
+        ' string_field = string, max
+        ' string_acotada = string, 32
+        ' date_field = date
+        ' time_field = time
+        ' timestamp_field = timestamp
+        ' money_field = money
+        ' remote_ref_field = pkfield
+        ' long_text_field = Text
+        ' null_allowed_field = anytype NULL
+        ' END TABLE
+
+        Dim fieldName As String = ""
+        Dim tmpString As String = ""
+        Dim splitLine As String()
+        Dim splitOptions As String()
+
+
+        Select Case _DatabaseType
+            Case SQLEngine.dataBaseType.MS_ACCESS
+                ' TODO: Generar codigo para ms access
+            Case SQLEngine.dataBaseType.SQL_SERVER
+                If line.Length > 0 And Not line.Trim(" ").StartsWith("#") Then
+
+                    ' Primer split
+                    ' (pk_field) = (pk, auto:1/1)
+                    splitLine = line.Split("=")
+                    If splitLine.Length > 1 Then
+                        tmpString = tableName & "_" & splitLine(0).Trim(" ") & " "
+
+                        ' Segundo split
+                        ' splitOptions 0  , 1
+                        '             (pk), (auto:1/1)
+                        splitOptions = splitLine(1).Split(",")
+                        Dim typeField As String = splitOptions(0).ToLower.Trim(" ")
+                        Select Case typeField
+                            Case "pk"
+                                ' _id bigint NOT NULL IDENTITY (1, 1)
+                                tmpString = tmpString.Insert(0, "ISPK_")    ' Envio flag is pk para tratarlo como clave primaria
+                                tmpString &= "bigint"
+
+                                If splitOptions.Length > 1 Then
+                                    ' Tercer split
+                                    ' (auto):(1/1)
+                                    splitOptions = splitOptions(1).Split(":")
+                                    If (splitOptions.Length > 1) And (splitOptions(0).ToLower.Trim(" ") = "auto") Then
+                                        tmpString &= " IDENTITY (" & splitOptions(1).Split("/")(0) & ", " & splitOptions(1).Split("/")(1) & ")"
+                                    End If
+                                End If
+
+                            Case "string"
+                                tmpString &= "nvarchar("
+                                If splitOptions.Length > 1 Then
+                                    If splitOptions(1).Trim(" ").StartsWith("lenght") Then
+                                        tmpString &= splitOptions(1).Split(":")(1).ToUpper & ")"
+                                    Else
+                                        tmpString &= "50)"
+                                    End If
+                                End If
+
+                            Case "text"
+                                tmpString &= "text"
+
+                            Case "date"
+                                tmpString &= "date"
+
+                            Case "time"
+                                tmpString &= "time(7)"
+
+                            Case "timestamp"
+                                tmpString &= "datetime"
+
+                            Case "money"
+                                tmpString &= "decimal(25, 13)"
+
+                            Case "int"
+                                tmpString &= "int"
+
+                            Case "longint"
+                                tmpString &= "bigint"
+
+                            Case "pkfield"
+                                tmpString &= "bigint"
+
+                            Case Else
+                                tmpString &= ""
+
+                        End Select
+
+                        If line.Contains("!NULL") Then
+                            tmpString &= " NOT NULL,"
+                        Else
+                            tmpString &= " NULL,"
+                        End If
+
+                        Return tmpString
+                    Else
+                        Return ""
+                    End If
+                End If
+        End Select
+
+        Return ""
+    End Function
+
+
 
 End Class

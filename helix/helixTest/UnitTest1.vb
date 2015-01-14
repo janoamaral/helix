@@ -6,7 +6,7 @@ Imports helix
 
     <TestMethod()> Public Sub DbConnection()
         Dim a As New SQLEngine
-        a.DatabaseName = "soccam"
+        a.DatabaseName = "master"
         a.dbType = 1
         a.Path = "ALPHACORE\SQLEXPRESS"
         a.RequireCredentials = False
@@ -44,6 +44,18 @@ Imports helix
             .RequireCredentials = False
             .ServerName = My.Computer.Name & "\SQLEXPRESS"
             Assert.IsTrue(.CreateNewDataBase)
+        End With
+    End Sub
+
+    <TestMethod()> Public Sub DbTableCreation()
+        Dim a As New SQLEngineBuilder
+        With a
+            .DataBaseName = "helix"
+            .DatabaseType = SQLEngine.dataBaseType.SQL_SERVER
+            .ModelPath = "G:\Dev\helix\helix\script_test.txt"
+            .RequireCredentials = False
+            .ServerName = My.Computer.Name & "\SQLEXPRESS"
+            Assert.IsTrue(.CreateTable)
         End With
     End Sub
 

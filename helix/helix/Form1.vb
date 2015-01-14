@@ -6,8 +6,9 @@
             .DataBaseName = "helix"
             .DatabaseType = SQLEngine.dataBaseType.SQL_SERVER
             .RequireCredentials = False
+            .ModelPath = "G:\Dev\helix\helix\script_test.txt"
             .ServerName = My.Computer.Name & "\SQLEXPRESS"
-            .CreateNewDataBase()
+            .CreateTable()
         End With
     End Sub
 End Class

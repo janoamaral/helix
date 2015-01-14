@@ -1,0 +1,24 @@
+# Comentario estandar
+
+DATABASE_NAME = helix
+DATABASE_TYPE = SQL_SERVER
+
+TABLE users
+pk_field = pk, auto:1/10, !NULL
+string_std = string, 
+# Comentario en medio de una tabla
+string_field = string, lenght:max
+string_acotada = string, lenght:32, !NULL
+date_field = date
+time_field = time
+timestamp_field = timestamp
+money_field = money
+remote_ref_field = pkfield
+long_text_field = text
+END TABLE
+
+
+TABLE localidades
+id = pk, auto:1/10, !NULL
+nombre = string, lenght: 20
+END TABLE
