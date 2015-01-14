@@ -131,6 +131,10 @@ Public Class SQLEngineBuilder
     ''' <remarks>0 = Ms Access, 1 = SQL Server</remarks>
     Public Property DatabaseType As dataBaseType
 
+    ''' <summary>
+    ''' Estructura con configuracion de base de datos
+    ''' </summary>
+    ''' <remarks>Normalmente con default es suficiente</remarks>
     Public Structure SQLServerDBProperties
         Dim dbOwner As String
         Dim dbFilesGroup As List(Of dbFileGroup)
@@ -708,7 +712,4 @@ Public Class SQLEngineBuilder
 
         Return ""
     End Function
-
-
-
 End Class

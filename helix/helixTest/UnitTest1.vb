@@ -59,4 +59,17 @@ Imports helix
         End With
     End Sub
 
+    <TestMethod()> Public Sub LogCreation()
+        Dim newLog As New Ermac
+        newLog.LogFilePath = "G:\Dev\helix\helix\syslog.log"
+        newLog.ErrorLevel = 2
+        newLog.Code = 1
+        newLog.Description = "Esto es una prueba"
+        newLog.isHidden = True
+        newLog.ModuleName = "LogCreation"
+        newLog.SubSystem = "UnitTest1"
+        newLog.Timestamp = Now
+        Assert.IsTrue(newLog.Save())
+    End Sub
+
 End Class
