@@ -13,10 +13,36 @@ Imports helix
         Assert.IsTrue(a.Start)
     End Sub
 
-    <TestMethod()> Public Sub DbHelixConnection()
+
+    <TestMethod()> Public Sub SQLEngineBuilderCreateDB()
         Dim a As New SQLEngineBuilder
         With a
-            .DataBaseName = "helix"
+            .DataBaseName = "soccam"
+            .SQLDbProperties.dbFullPath = "G:\Dev\helix\helix\helix\bin\Debug\"
+            .DatabaseType = SQLEngine.dataBaseType.SQL_SERVER
+            .RequireCredentials = False
+            .ServerName = My.Computer.Name & "\SQLEXPRESS"
+            Assert.IsTrue(.CreateNewDataBase)
+        End With
+    End Sub
+
+    <TestMethod()> Public Sub DbTableCreation()
+        Dim a As New SQLEngineBuilder
+        With a
+            .DataBaseName = "soccam"
+            .DatabaseType = SQLEngine.dataBaseType.SQL_SERVER
+            .ModelPath = "G:\Dev\helix\helix\script_test.txt"
+            .RequireCredentials = False
+            .ServerName = My.Computer.Name & "\SQLEXPRESS"
+            Assert.IsTrue(.CreateTable)
+        End With
+    End Sub
+
+
+    <TestMethod()> Public Sub DbCustomDBBuildConnection()
+        Dim a As New SQLEngineBuilder
+        With a
+            .DataBaseName = "soccam"
             .DatabaseType = SQLEngine.dataBaseType.SQL_SERVER
             .RequireCredentials = False
             .ServerName = My.Computer.Name & "\SQLEXPRESS"
@@ -35,29 +61,9 @@ Imports helix
         End With
     End Sub
 
-    <TestMethod()> Public Sub SQLEngineBuilderCreateDB()
-        Dim a As New SQLEngineBuilder
-        With a
-            .DataBaseName = "helix"
-            .SQLDbProperties.dbFullPath = "G:\Dev\helix\helix\helix\bin\Debug\"
-            .DatabaseType = SQLEngine.dataBaseType.SQL_SERVER
-            .RequireCredentials = False
-            .ServerName = My.Computer.Name & "\SQLEXPRESS"
-            Assert.IsTrue(.CreateNewDataBase)
-        End With
-    End Sub
+   
 
-    <TestMethod()> Public Sub DbTableCreation()
-        Dim a As New SQLEngineBuilder
-        With a
-            .DataBaseName = "helix"
-            .DatabaseType = SQLEngine.dataBaseType.SQL_SERVER
-            .ModelPath = "G:\Dev\helix\helix\script_test.txt"
-            .RequireCredentials = False
-            .ServerName = My.Computer.Name & "\SQLEXPRESS"
-            Assert.IsTrue(.CreateTable)
-        End With
-    End Sub
+    
 
     <TestMethod()> Public Sub LogCreation()
         Dim newLog As New Ermac
@@ -69,7 +75,8 @@ Imports helix
         newLog.ModuleName = "LogCreation"
         newLog.SubSystem = "UnitTest1"
         newLog.Timestamp = Now
-        Assert.IsTrue(newLog.Save())
+        Dim ex As New Exception
+        newLog.SetError(ex, "unitTest", "LogCreation", "this is a test")
     End Sub
 
 End Class

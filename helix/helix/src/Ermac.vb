@@ -79,22 +79,48 @@ Public Class Ermac
     ''' <remarks></remarks>
     Public Property ErrorLevel As Byte = 0
 
+    Public Sub New()
+        MyBase.New()
+        Try
+            _LogLevel = My.Settings.Item("LogLevel")
+        Catch ex As Exception
+            _LogLevel = 1
+            Console.WriteLine(ex.Message)
+        End Try
+    End Sub
+
+
+    Public Sub SetError(ByVal ex As Exception, ByVal subSystem As String, ByVal functionName As String, Optional ByVal debugMessage As String = "")
+        ' TODO: Corregir niveles de rror
+        _Timestamp = Now
+        _SubSystem = subSystem
+        _ModuleName = functionName
+        If ex.Message.Length = 0 Then
+            _Description = debugMessage
+        Else
+            _Description = ex.Message
+        End If
+        _Code = 1
+        _ErrorLevel = 0
+        Save()
+    End Sub
+
     ''' <summary>
     ''' Guarda una entrada de error en el log
     ''' </summary>
     ''' <returns>True si se pudo crear el archivo y/o guardar la entrada, False si fallo</returns>
     ''' <remarks></remarks>
-    Public Function Save() As Boolean
+    Private Function Save() As Boolean
         If My.Computer.FileSystem.FileExists(_LogFilePath) Then
             Dim lineString As String
 
-            lineString = _Timestamp.ToString & "    "
-            lineString &= "Level:" & _ErrorLevel & "    "
-            lineString &= "Code:" & _Code & "    "
-            lineString &= _SubSystem & "    "
+            lineString = _Timestamp.ToString & vbTab
+            lineString &= "Level:" & _ErrorLevel & vbTab & vbTab
+            lineString &= "Code:" & _Code & vbTab & vbTab
+            lineString &= _SubSystem & vbTab & vbTab
 
             If _LogLevel = 2 Then
-                lineString &= "FUNC: " & _ModuleName & "    "
+                lineString &= "FUNC: " & _ModuleName & vbTab & vbTab
                 lineString &= _Description
             End If
 

@@ -693,6 +693,9 @@ Public Class SQLEngineBuilder
                             Case "pkfield"
                                 tmpString &= "bigint"
 
+                            Case "bool"
+                                tmpString &= "bit"
+
                             Case Else
                                 tmpString &= ""
 
@@ -710,7 +713,6 @@ Public Class SQLEngineBuilder
                     End If
                 End If
         End Select
-
         Return ""
     End Function
 End Class

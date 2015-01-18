@@ -1,24 +1,48 @@
-# Comentario estandar
-
-DATABASE_NAME = helix
+DATABASE_NAME = soccam
 DATABASE_TYPE = SQL_SERVER
 
-TABLE users
-pk_field = pk, auto:1/10, !NULL
-string_std = string, 
-# Comentario en medio de una tabla
-string_field = string, lenght:max
-string_acotada = string, lenght:32, !NULL
-date_field = date
-time_field = time
-timestamp_field = timestamp
-money_field = money
-remote_ref_field = pkfield
-long_text_field = text
+# Los nombres de los campos se escriben SIN PREFIJO!!!
+TABLE socio
+id = pk, auto:1/1, !NULL
+nombre = string, !NULL
+apellido = string, !NULL
+nacionalidad = string,
+dni = string,
+fechaNacimiento = date
+cuit = string, lenght:11
+mail = string,
+firma = string,
+tipoEmpresa = string,
+domicilio = string,
+telefono = string,
+tipoSocio = pkfield
+numero = int
+fechaAprobacion = date
+acta = int
+padrino1 = pkfield
+padrino2 = pkfield
+sector = int
+deleted = bool
 END TABLE
 
-
-TABLE localidades
+TABLE pagosSocios
 id = pk, auto:1/10, !NULL
-nombre = string, lenght: 20
+socio = pkfield, !NULL
+plan = pkfield, !NULL
+anio = int, !NULL
+periodo = int, !NULL
+observaciones = string, max
+END TABLE
+
+TABLE tipoSocio
+id = pk, auto:1/10, !NULL
+nombre = string, !NULL
+planPago = pkfield, !NULL
+END TABLE
+
+TABLE planPago
+id = pk, auto:1/10, !NULL
+nombre = string, !NULL
+importe = money, !NULL
+periodicidad = int, !NULL
 END TABLE

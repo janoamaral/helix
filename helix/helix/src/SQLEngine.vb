@@ -251,7 +251,7 @@ Public Class SQLEngine
                 End If
 
                 If _dbName.Length <> 0 Then
-                    tmpConn &= "Database=" & _dbName & ";"
+                    tmpConn &= "Initial Catalog=" & _dbName & ";"
                 Else
                     Return ""
                 End If

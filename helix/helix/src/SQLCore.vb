@@ -15,6 +15,12 @@ Public Class SQLCore
 
     Private _queryString As String = ""
 
+    ''' <summary>
+    ''' Controlador de error
+    ''' </summary>
+    ''' <remarks></remarks>
+    Public LastError As New Ermac
+
     Public Property ConnectionString As String
         Get
             Return _connectionString
@@ -51,6 +57,7 @@ Public Class SQLCore
                     Try
                         connection.Open()
                     Catch ex As Exception
+                        LastError.SetError(ex, "SQLCore", "TestConnectionMSA")
                         Return False
                     End Try
                     Return True
@@ -60,6 +67,7 @@ Public Class SQLCore
                     Try
                         connection.Open()
                     Catch ex As Exception
+                        LastError.SetError(ex, "SQLCore", "TestConnectionSQL")
                         Return False
                     Finally
                         connection.Close()
@@ -123,14 +131,13 @@ Public Class SQLCore
                 connection.Open()
                 command.ExecuteNonQuery()
                 connection.Close()
+                Return True
             Catch ex As Exception
                 Console.Write(ex.Message)
+                LastError.SetError(ex, "SQLCore", "ExecuteNonQuery")
                 Return False
             End Try
-
-            Return True
         End Using
-        Return False
     End Function
 
 
@@ -155,8 +162,6 @@ Public Class SQLCore
                 Next
             End If
 
-            Debug.Print(command.CommandText)
-
             Try
                 connection.Open()
                 command.ExecuteNonQuery()
@@ -164,6 +169,7 @@ Public Class SQLCore
                 Return True
             Catch ex As Exception
                 Console.Write(ex.Message)
+                LastError.SetError(ex, "SQLCore", "ExecuteNonQuery2")
                 Return False
             End Try
         End Using
@@ -207,12 +213,12 @@ Public Class SQLCore
                 connection.Close()
             Catch ex As Exception
                 Console.Write(ex.Message)
+                LastError.SetError(ex, "SQLCore", "ExecuteNonQuery3")
                 Return False
             End Try
 
             Return True
         End Using
-        Return False
     End Function
 
 
@@ -254,6 +260,7 @@ Public Class SQLCore
                 Return True
             Catch ex As Exception
                 Console.Write(ex.Message)
+                LastError.SetError(ex, "SQLCore", "ExecuteNonQuery4")
                 Return False
             End Try
         End Using
@@ -270,6 +277,7 @@ Public Class SQLCore
                 Return True
             Catch ex As Exception
                 Console.Write(ex.Message)
+                LastError.SetError(ex, "SQLCore", "ExecuteNonQuery5")
                 Return False
             End Try
         End Using
@@ -301,24 +309,25 @@ Public Class SQLCore
                         Accesscommand.Parameters.AddWithValue(tmpParam.ParameterName, tmpParam.Value)
                     Next
                 End If
-                Try
 
+                Try
                     Accessconnection.Open()
                     Accesscommand.Prepare()
                     AccessDataReader = Accesscommand.ExecuteReader()
                     dbReader.Load(AccessDataReader)
 
                     Accessconnection.Close()
+                    Return True
                 Catch ex As Exception
                     Console.Write(ex.Message)
+                    LastError.SetError(ex, "SQLCore", "ExecuteQuery")
                     Return False
                 End Try
             Case Else
+                Dim ex As New Exception
+                LastError.SetError(ex, "SQLCore", "ExecuteQuery", "No existe tipo DB")
                 Return False
         End Select
-
-
-        Return True
     End Function
 
 
@@ -354,6 +363,7 @@ Public Class SQLCore
             Return True
         Catch ex As Exception
             Console.WriteLine(ex.Message)
+            LastError.SetError(ex, "SQLCore", "ExecuteQuery2")
             Return False
         End Try
     End Function
