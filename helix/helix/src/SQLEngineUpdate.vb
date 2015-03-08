@@ -9,6 +9,14 @@ Public Class SQLEngineUpdate
     Inherits SQLBase
 
     ''' <summary>
+    ''' Ruta completa y nombre de archivo donde se van a guardar los logs
+    ''' </summary>
+    ''' <value>Cadena con la ruta completa y el nombre de archivo del log</value>
+    ''' <returns>La ruta y el nombre del archivo log</returns>
+    ''' <remarks></remarks>
+    Public Property LogFileFullName As String = Application.StartupPath & "\syslog.log"
+
+    ''' <summary>
     ''' Lista de parametros Columna/Valor para ser insertados en la tabla
     ''' </summary>
     ''' <remarks></remarks>
@@ -84,6 +92,7 @@ Public Class SQLEngineUpdate
     Public Function Update() As Boolean
         Dim _sqlCore As New SQLCore
         With _sqlCore
+            .LastError.LogFilePath = _LogFileFullName
             .ConnectionString = _connectionString
             .dbType = _dbType
             .QueryString = GenerateQuery(True)

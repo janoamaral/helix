@@ -23,6 +23,7 @@ padrino1 = pkfield
 padrino2 = pkfield
 sector = int
 deleted = bool
+tieneCajaSeguridad = bool
 END TABLE
 
 TABLE pagosSocios
@@ -35,12 +36,6 @@ observaciones = string, max
 END TABLE
 
 TABLE tipoSocio
-id = pk, auto:1/10, !NULL
-nombre = string, !NULL
-planPago = pkfield, !NULL
-END TABLE
-
-TABLE planPago
 id = pk, auto:1/10, !NULL
 nombre = string, !NULL
 importe = money, !NULL

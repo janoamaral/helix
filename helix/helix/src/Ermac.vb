@@ -82,7 +82,7 @@ Public Class Ermac
     Public Sub New()
         MyBase.New()
         Try
-            _LogLevel = My.Settings.Item("LogLevel")
+            _LogLevel = 2
         Catch ex As Exception
             _LogLevel = 1
             Console.WriteLine(ex.Message)
@@ -145,13 +145,18 @@ Public Class Ermac
     ''' <remarks></remarks>
     Private Function CreateLogFile() As Boolean
         If Not My.Computer.FileSystem.FileExists(_LogFilePath) Then
-            Using sw As StreamWriter = File.AppendText(_LogFilePath)
-                sw.WriteLine("LOG CREATED: " & Now)
-                If _isHidden = True Then
-                    File.SetAttributes(_LogFilePath, FileAttributes.Hidden)
-                End If
-                Return True
-            End Using
+            Try
+                Using sw As StreamWriter = File.AppendText(_LogFilePath)
+                    sw.WriteLine("LOG CREATED: " & Now)
+                    If _isHidden = True Then
+                        File.SetAttributes(_LogFilePath, FileAttributes.Hidden)
+                    End If
+                    Return True
+                End Using
+            Catch ex As Exception
+                Console.WriteLine(ex)
+                Return False
+            End Try
         End If
         Return False
     End Function

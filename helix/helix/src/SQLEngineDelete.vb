@@ -10,6 +10,14 @@ Public Class SQLEngineDelete
     Inherits SQLBase
 
     ''' <summary>
+    ''' Ruta completa y nombre de archivo donde se van a guardar los logs
+    ''' </summary>
+    ''' <value>Cadena con la ruta completa y el nombre de archivo del log</value>
+    ''' <returns>La ruta y el nombre del archivo log</returns>
+    ''' <remarks></remarks>
+    Public Property LogFileFullName As String = Application.StartupPath & "\syslog.log"
+
+    ''' <summary>
     ''' Guarda o retorna la cadena con la clausula WHERE
     ''' </summary>
     ''' <returns>La cadena con la clausula WHERE actual</returns>
@@ -49,6 +57,7 @@ Public Class SQLEngineDelete
     Public Function DeleteAll() As Boolean
         Dim core As New SQLCore
         With core
+            .LastError.LogFilePath = _LogFileFullName
             .ConnectionString = _connectionString
             .dbType = _dbType
             Select Case _dbType
@@ -72,6 +81,7 @@ Public Class SQLEngineDelete
         If _WHEREstring.Length <> 0 Then
             Dim core As New SQLCore
             With core
+                .LastError.LogFilePath = _LogFileFullName
                 .ConnectionString = _connectionString
                 .dbType = _dbType
                 .QueryString = GenerateQuery(True)

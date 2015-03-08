@@ -65,6 +65,15 @@ Public Class SQLEngine
     ''' <remarks></remarks>
     Public Db As New SQLEngineDB
 
+    ''' <summary>
+    ''' Ruta completa y nombre de archivo donde se van a guardar los logs
+    ''' </summary>
+    ''' <value>Cadena con la ruta completa y el nombre de archivo del log</value>
+    ''' <returns>La ruta y el nombre del archivo log</returns>
+    ''' <remarks></remarks>
+    Public Property LogFileFullName As String = Application.StartupPath & "\syslog.log"
+
+
     Public Enum dataBaseType As Byte
         MS_ACCESS = 0
         SQL_SERVER = 1
@@ -216,6 +225,16 @@ Public Class SQLEngine
 
 
     ''' <summary>
+    ''' Indica si el motor esta encendido o apagado
+    ''' </summary>
+    ''' <value>Valor booleano indicando el estado del motor</value>
+    ''' <returns>El estado del motor, TRUE si esta encendido, FALSE si no</returns>
+    ''' <remarks></remarks>
+    Public Property IsStarted As Boolean = False
+
+
+
+    ''' <summary>
     ''' Genera la cadena de conexion a la base de datos
     ''' </summary>
     ''' <returns>La cadena de conexion</returns>
@@ -277,7 +296,9 @@ Public Class SQLEngine
             With testSQLCore
                 .dbType = _dbType
                 .ConnectionString = _connectionString
-                Return .TestConnection()
+                _IsStarted = .TestConnection()
+
+                Return _IsStarted
             End With
         Else
             Return False
@@ -291,16 +312,19 @@ Public Class SQLEngine
     Private Sub InitializeObjects()
         Delete.ConnectionString = _connectionString
         Delete.DbType = _dbType
+        Delete.LogFileFullName = _LogFileFullName
 
         Insert.ConnectionString = _connectionString
         Insert.DbType = _dbType
+        Insert.LogFileFullName = _LogFileFullName
 
         Update.ConnectionString = _connectionString
         Update.DbType = _dbType
+        Update.LogFileFullName = _LogFileFullName
 
         Query.ConnectionString = _connectionString
         Query.DbType = _dbType
-
+        Query.LogFileFullName = _LogFileFullName
     End Sub
 
 

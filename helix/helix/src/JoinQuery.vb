@@ -44,6 +44,11 @@ Public Class JoinQuery
         _ComparationColumns.Add(tmp)
     End Sub
 
+    ''' <summary>
+    ''' Union entre 2 o mas JoinQueries, por ejemplo AND, OR, etc
+    ''' </summary>
+    ''' <param name="logicalOperator">Cadena con el operador logico entre 2 JoinQueries</param>
+    ''' <remarks></remarks>
     Public Sub AddLogicalOperator(ByVal logicalOperator As String)
         _logicalOperators.Add(logicalOperator)
     End Sub

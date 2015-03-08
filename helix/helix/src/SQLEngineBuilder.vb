@@ -224,7 +224,7 @@ Public Class SQLEngineBuilder
     ''' </summary>
     ''' <returns>La cadena de conexion</returns>
     ''' <remarks></remarks>
-    Public Function GenerateConnectionString() As String
+    Public Function GenerateConnectionString(ByVal createDb As Boolean) As String
 
         Select Case _DatabaseType
             Case SQLEngine.dataBaseType.MS_ACCESS
@@ -232,6 +232,9 @@ Public Class SQLEngineBuilder
             Case SQLEngine.dataBaseType.SQL_SERVER
                 Dim tmpStr As String = ""
                 tmpStr &= "Data Source=" & ServerName & ";"
+
+                If createDb Then tmpStr &= "Initial Catalog=master;" Else tmpStr &= "Initial Catalog=" & _DataBaseName & ";"
+
                 If _RequireCredentials = True Then
                     tmpStr &= "Integrated Security=False;"
                     tmpStr &= "uid=" & _Username & ";"
@@ -239,6 +242,7 @@ Public Class SQLEngineBuilder
                 Else
                     tmpStr &= "Integrated Security=True;"
                 End If
+
                 Return tmpStr & "Connect Timeout=15;Encrypt=False;TrustServerCertificate=False"
         End Select
         Return ""
@@ -258,7 +262,9 @@ Public Class SQLEngineBuilder
             Case SQLEngine.dataBaseType.SQL_SERVER
                 With tmpCore
                     .dbType = DatabaseType.SQL_SERVER
-                    .ConnectionString = GenerateConnectionString()
+
+                    ' Se devuelve la conexion con creacion de base de datos porque se asegura que la base existe
+                    .ConnectionString = GenerateConnectionString(True)
                     Return .TestConnection()
                 End With
         End Select
@@ -495,7 +501,7 @@ Public Class SQLEngineBuilder
 
                 Dim tmpCore As New SQLCore
                 tmpCore.dbType = DatabaseType.SQL_SERVER
-                tmpCore.ConnectionString = GenerateConnectionString()
+                tmpCore.ConnectionString = GenerateConnectionString(True)
                 Return tmpCore.ExecuteNonQuery(tmpStr)
         End Select
         Return False
@@ -514,7 +520,7 @@ Public Class SQLEngineBuilder
             Case SQLEngine.dataBaseType.SQL_SERVER
                 Dim tmpCore As New SQLCore
                 tmpCore.dbType = DatabaseType.SQL_SERVER
-                tmpCore.ConnectionString = GenerateConnectionString() & ";Initial Catalog=" & _DataBaseName & ";"
+                tmpCore.ConnectionString = GenerateConnectionString(False)
                 Dim comm As String = generateTableScript()
                 Return tmpCore.ExecuteNonQuery(comm)
         End Select
@@ -596,7 +602,7 @@ Public Class SQLEngineBuilder
 
             End If
         Loop
-
+        Debug.Print(tmpScript)
         Return tmpScript
     End Function
 
@@ -665,7 +671,7 @@ Public Class SQLEngineBuilder
                                     If splitOptions(1).Trim(" ").StartsWith("lenght") Then
                                         tmpString &= splitOptions(1).Split(":")(1).ToUpper & ")"
                                     Else
-                                        tmpString &= "50)"
+                                        tmpString &= "150)"
                                     End If
                                 End If
 
@@ -695,6 +701,9 @@ Public Class SQLEngineBuilder
 
                             Case "bool"
                                 tmpString &= "bit"
+
+                            Case "percent"
+                                tmpString &= "decimal(5,2)"
 
                             Case Else
                                 tmpString &= ""

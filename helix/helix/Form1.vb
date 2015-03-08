@@ -8,7 +8,7 @@
             .ModelPath = "G:\Dev\helix\helix\script_test.txt"
             .RequireCredentials = False
             .ServerName = My.Computer.Name & "\SQLEXPRESS"
-            MsgBox(.GenerateConnectionString)
+            MsgBox(.GenerateConnectionString(True))
             .CreateTable()
         End With
 

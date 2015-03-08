@@ -9,6 +9,14 @@ Public Class SQLEngineQuery
     Inherits SQLBase
 
     ''' <summary>
+    ''' Ruta completa y nombre de archivo donde se van a guardar los logs
+    ''' </summary>
+    ''' <value>Cadena con la ruta completa y el nombre de archivo del log</value>
+    ''' <returns>La ruta y el nombre del archivo log</returns>
+    ''' <remarks></remarks>
+    Public Property LogFileFullName As String = Application.StartupPath & "\syslog.log"
+
+    ''' <summary>
     ''' Almacena las partes de la consulta JOIN
     ''' </summary>
     Private _joinQuery As String = ""
@@ -34,6 +42,12 @@ Public Class SQLEngineQuery
     ''' </summary>
     ''' <remarks></remarks>
     Private _queryResultReader As DataTableReader
+
+    ''' <summary>
+    ''' Cantidad de columnas devueltas en la consulta
+    ''' </summary>
+    ''' <remarks></remarks>
+    Private _columnCount As Integer = 0
 
     ''' <summary>
     ''' Cantidad de registros devueltos en la consulta
@@ -92,6 +106,16 @@ Public Class SQLEngineQuery
         End Set
     End Property
 
+    ''' <summary>
+    ''' Cantidad de columnas devueltas en la consulta
+    ''' </summary>
+    ''' <returns>La cantidad de columnas devueltas</returns>
+    Public ReadOnly Property ColumnCount() As Integer
+        Get
+            Return _columnCount
+        End Get
+    End Property
+
 
     ''' <summary>
     ''' Cantidad de registros devueltos por la consulta
@@ -128,7 +152,9 @@ Public Class SQLEngineQuery
     ''' Agrega una nueva columna a la clausula SELECT
     ''' </summary>
     ''' <param name="column">Nombre de la columna</param>
-    Public Sub AddSelectColumn(ByVal column As String)
+    ''' <param name="tableName">Nombre de la tabla</param>
+    Public Sub AddSelectColumn(ByVal column As String, Optional ByVal tableName As String = "")
+        If tableName.Length <> 0 Then column = tableName & "." & column
         _selectColumn.Add(column)
     End Sub
 
@@ -175,8 +201,8 @@ Public Class SQLEngineQuery
                 tmpQuery &= tmpStr & ", "
             Next
             tmpQuery = tmpQuery.Remove(tmpQuery.Length - 2, 2)              ' Quitar la coma y el espacio sobrante
-        Else                                                                ' Seleccionar todas las columnas
-            tmpQuery &= "*"
+        Else
+            tmpQuery &= "*"                                                 ' Seleccionar todas las columnas
         End If
 
         tmpQuery &= " FROM "
@@ -227,12 +253,19 @@ Public Class SQLEngineQuery
         _selectColumn.Clear()
         _queryString = ""
         _WHEREstring = ""
-        _queryResult.Clear()
-        If Not (_queryResultReader.IsClosed) Then
-            _queryResultReader.Close()
+
+        If _queryResult.IsInitialized Then
+            _queryResult.Reset()
+            If Not IsNothing(_queryResultReader) Then
+                If Not (_queryResultReader.IsClosed) Then
+                    _queryResultReader.Close()
+                End If
+            End If
         End If
+
         _QueryParamOle.Clear()
         _QueryParamSql.Clear()
+        _columnCount = 0
         _recordCount = 0
     End Sub
 
@@ -245,6 +278,7 @@ Public Class SQLEngineQuery
         Dim core As New SQLCore
 
         With core
+            .LastError.LogFilePath = _LogFileFullName
             .ConnectionString = _connectionString
             .dbType = _dbType
             .QueryString = GenerateQuery(True)
@@ -255,6 +289,7 @@ Public Class SQLEngineQuery
                 Case 0
                     If .ExecuteQuery(True, _QueryParamOle, _queryResult) Then
                         _flagReaderReady = True
+                        _columnCount = _queryResult.Columns.Count
                         _recordCount = _queryResult.Rows.Count
                         _queryResultReader = _queryResult.CreateDataReader()
                         Return True
@@ -265,8 +300,10 @@ Public Class SQLEngineQuery
                 Case 1
                     If .ExecuteQuery(True, _QueryParamSql, _queryResult) Then
                         _flagReaderReady = True
+                        _columnCount = _queryResult.Columns.Count
                         _recordCount = _queryResult.Rows.Count
                         _queryResultReader = _queryResult.CreateDataReader()
+
                         Return True
                     Else
                         _flagReaderReady = False
