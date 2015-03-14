@@ -61,6 +61,21 @@ Public Class SQLEngineQuery
     Private _selectColumn As New List(Of String)
 
     ''' <summary>
+    ''' Almacena las columnas que se quieren ordenar
+    ''' </summary>
+    ''' <remarks></remarks>
+    Private _orderColumn As New List(Of String)
+
+    ''' <summary>
+    ''' Modo de ordenacion del resultado el query
+    ''' </summary>
+    ''' <remarks></remarks>
+    Public Enum sortOrder
+        ascending = 0
+        descending = 1
+    End Enum
+
+    ''' <summary>
     ''' Agrega la primera clausula JOIN
     ''' </summary>
     ''' <param name="table1">Primera tabla de comparacion</param>
@@ -72,6 +87,21 @@ Public Class SQLEngineQuery
     ''' </remarks>
     Public Sub AddFirstJoin(ByVal table1 As String, ByVal table2 As String, ByVal commonColumnTable1 As String, ByVal commonColumnTable2 As String)
         _joinQuery = "@(" & table1 & " INNER JOIN " & table2 & " ON " & commonColumnTable1 & " = " & commonColumnTable2 & ")"
+    End Sub
+
+    ''' <summary>
+    ''' Agrega una columna con el metodo de ordenacion
+    ''' </summary>
+    ''' <param name="column">Nombre de la columna a ordenar</param>
+    ''' <param name="sortingOrder">Metodo de ordenacion</param>
+    ''' <remarks></remarks>
+    Public Sub AddOrderColumn(ByVal column As String, ByVal sortingOrder As sortOrder)
+        Select Case sortingOrder
+            Case sortOrder.ascending
+                _orderColumn.Add(column & " ASC")
+            Case sortOrder.descending
+                _orderColumn.Add(column & " DESC")
+        End Select
     End Sub
 
 
@@ -180,7 +210,12 @@ Public Class SQLEngineQuery
     ''' <returns>El valor de la columna en el registro actual. Si falla devuelve FALSE</returns>
     Public Function GetQueryData(ByVal index As Integer) As Object
         If _flagReaderReady = True Then
-            Return _queryResultReader.Item(index)
+            If IsDBNull(_queryResultReader.Item(index)) Then
+                Return ""
+            Else
+                Return _queryResultReader.Item(index)
+            End If
+
         Else
             Return False
         End If
@@ -228,6 +263,15 @@ Public Class SQLEngineQuery
             tmpQuery &= " WHERE " & _WHEREstring
         End If
 
+        If _orderColumn.Count > 0 Then
+            tmpQuery &= " ORDER BY "
+            For Each tmpStr In _orderColumn
+                tmpQuery &= tmpStr & ", "
+            Next
+            ' Remover la ultima coma y espacio
+            tmpQuery = tmpQuery.Remove(tmpQuery.LastIndexOf(","), 2)
+        End If
+
         If toProcess = False Then
             Dim obj As Object
             For Each obj In _QueryParam                                             ' Por cada parametro
@@ -265,6 +309,7 @@ Public Class SQLEngineQuery
 
         _QueryParamOle.Clear()
         _QueryParamSql.Clear()
+        _orderColumn.Clear()
         _columnCount = 0
         _recordCount = 0
     End Sub
@@ -302,6 +347,7 @@ Public Class SQLEngineQuery
                         _flagReaderReady = True
                         _columnCount = _queryResult.Columns.Count
                         _recordCount = _queryResult.Rows.Count
+
                         _queryResultReader = _queryResult.CreateDataReader()
 
                         Return True
