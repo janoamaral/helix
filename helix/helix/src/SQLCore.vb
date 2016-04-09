@@ -57,6 +57,7 @@ Public Class SQLCore
                     Try
                         connection.Open()
                     Catch ex As Exception
+                        Debug.Print(ex.Message)
                         LastError.SetError(ex, "SQLCore", "TestConnectionMSA")
                         Return False
                     End Try
@@ -156,9 +157,13 @@ Public Class SQLCore
                 Dim tmpPos As Integer
                 For Each tmpParam In Param
                     tmpPos = command.CommandText.IndexOf("?")
-                    command.CommandText = command.CommandText.Remove(tmpPos, 1)
-                    command.CommandText = command.CommandText.Insert(tmpPos, tmpParam.ParameterName)
-                    command.Parameters.AddWithValue(tmpParam.ParameterName, tmpParam.Value)
+                    If tmpPos >= 0 Then
+                        command.CommandText = command.CommandText.Remove(tmpPos, 1)
+                        command.CommandText = command.CommandText.Insert(tmpPos, tmpParam.ParameterName)
+                        command.Parameters.AddWithValue(tmpParam.ParameterName, tmpParam.Value)
+                    Else
+                        Return False
+                    End If
                 Next
             End If
 
@@ -206,10 +211,14 @@ Public Class SQLCore
                 ' TODO: Testear en ms access
 
                 connection.Open()
-                command.ExecuteNonQuery()
-                ' Cambio de ejecutar ExecuteNonQuery a ExecuteScalar para que devuelva el ID
-                command.CommandText = "SELECT @@IDENTITY AS 'Identity'"
-                lastID = Convert.ToInt32(command.ExecuteScalar())
+                If command.ExecuteNonQuery() > 0 Then
+                    ' Cambio de ejecutar ExecuteNonQuery a ExecuteScalar para que devuelva el ID
+                    command.CommandText = "SELECT @@IDENTITY AS 'Identity'"
+                    lastID = Convert.ToInt32(command.ExecuteScalar())
+                Else
+                    lastID = 0
+                End If
+
                 connection.Close()
             Catch ex As Exception
                 Console.Write(ex.Message)
@@ -248,8 +257,6 @@ Public Class SQLCore
                 Next
             End If
 
-            Debug.Print(command.CommandText)
-
             Try
                 connection.Open()
                 ' Cambio de ejecutar ExecuteNonQuery a ExecuteScalar para que devuelva el ID
@@ -260,6 +267,7 @@ Public Class SQLCore
                 Return True
             Catch ex As Exception
                 Console.Write(ex.Message)
+                lastID = 0
                 LastError.SetError(ex, "SQLCore", "ExecuteNonQuery4")
                 Return False
             End Try
@@ -312,7 +320,7 @@ Public Class SQLCore
 
                 Try
                     Accessconnection.Open()
-                    Accesscommand.Prepare()
+                    'Accesscommand.Prepare()
                     AccessDataReader = Accesscommand.ExecuteReader()
                     dbReader.Load(AccessDataReader)
 

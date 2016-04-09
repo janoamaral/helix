@@ -108,6 +108,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="src\CRC32.vb" />
     <Compile Include="src\Ermac.vb" />
     <Compile Include="src\JoinQuery.vb" />
     <Compile Include="src\SQLBase.vb" />

@@ -1,5 +1,4 @@
-﻿Option Strict On
-
+﻿
 Imports System
 Imports System.Data
 Imports System.Data.SqlClient
@@ -7,6 +6,25 @@ Imports System.Data.OleDb
 
 Public Class SQLEngineQuery
     Inherits SQLBase
+
+    Public Enum OperatorCriteria As Byte
+        Igual = 0
+        Distinto = 1
+        Menor = 2
+        MenorIgual = 3
+        Mayor = 4
+        MayorIgual = 5
+        LikeString = 6
+        Between = 7
+    End Enum
+
+    Private Structure CountSum
+        Dim sqlFunction As String
+        Dim rowName As String
+        Dim asRowName As String
+    End Structure
+
+    Private _lstFunctions As New List(Of CountSum)
 
     ''' <summary>
     ''' Ruta completa y nombre de archivo donde se van a guardar los logs
@@ -75,6 +93,8 @@ Public Class SQLEngineQuery
         descending = 1
     End Enum
 
+    Public Property RowLimit As Integer = 0
+
     ''' <summary>
     ''' Agrega la primera clausula JOIN
     ''' </summary>
@@ -86,7 +106,13 @@ Public Class SQLEngineQuery
     ''' El @ sera reemplazado por la cantidad de "(" necesarios en la consulta final para que los JOIN anidados cierren sus respectivos parentesis
     ''' </remarks>
     Public Sub AddFirstJoin(ByVal table1 As String, ByVal table2 As String, ByVal commonColumnTable1 As String, ByVal commonColumnTable2 As String)
-        _joinQuery = "@(" & table1 & " INNER JOIN " & table2 & " ON " & commonColumnTable1 & " = " & commonColumnTable2 & ")"
+        Select Case DbType
+            Case 0
+                _joinQuery = "@(" & table1 & " INNER JOIN " & table2 & " ON (" & commonColumnTable1 & " = " & commonColumnTable2 & "))"
+            Case 1
+                _joinQuery = "@(" & table1 & " INNER JOIN " & table2 & " ON " & commonColumnTable1 & " = " & commonColumnTable2 & ")"
+        End Select
+
     End Sub
 
     ''' <summary>
@@ -95,7 +121,7 @@ Public Class SQLEngineQuery
     ''' <param name="column">Nombre de la columna a ordenar</param>
     ''' <param name="sortingOrder">Metodo de ordenacion</param>
     ''' <remarks></remarks>
-    Public Sub AddOrderColumn(ByVal column As String, ByVal sortingOrder As sortOrder)
+    Public Sub AddOrderColumn(ByVal column As String, ByVal sortingOrder As SortOrder)
         Select Case sortingOrder
             Case sortOrder.ascending
                 _orderColumn.Add(column & " ASC")
@@ -221,6 +247,76 @@ Public Class SQLEngineQuery
         End If
     End Function
 
+    ''' <summary>
+    '''  Devuelve el valor de la columna en el registro actual
+    ''' </summary>
+    ''' <param name="columnName">El nombre de la columna</param>
+    ''' <returns>El valor de la columna en el registro actual. Si falla devuelve FALSE</returns>
+    ''' <remarks></remarks>
+    Public Function GetQueryData(ByVal columnName As String) As Object
+        If _flagReaderReady = True Then
+            If IsDBNull(_queryResultReader.Item(columnName)) Then
+                Return ""
+            Else
+                Return _queryResultReader.Item(columnName)
+            End If
+
+        Else
+            Return False
+        End If
+    End Function
+
+    ''' <summary>
+    ''' Devuelve el DataTableReader de la consulta
+    ''' </summary>
+    ''' <value></value>
+    ''' <returns></returns>
+    ''' <remarks></remarks>
+    Public ReadOnly Property ResultReader As DataTableReader
+        Get
+            Return _queryResultReader
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Agrega un query simple del formato COLUMNA operador VALOR [AND VALOR]
+    ''' </summary>
+    ''' <param name="column">Columna a buscar</param>
+    ''' <param name="searchOperator">Operador a utilizar: =, !=...</param>
+    ''' <param name="value">Valor a buscar</param>
+    ''' <param name="valueEnd">Opcional cuando se usa BETWEEN</param>
+    ''' <remarks></remarks>
+    Public Sub SimpleSearch(ByVal column As String, ByVal searchOperator As OperatorCriteria, ByVal value As Object, Optional ByVal valueEnd As Object = Nothing)
+        _WHEREstring = column
+        Select Case searchOperator
+            Case OperatorCriteria.Igual
+                _WHEREstring += " = ?"
+            Case OperatorCriteria.Distinto
+                _WHEREstring += " <> ?"
+            Case OperatorCriteria.Menor
+                _WHEREstring += " < ?"
+            Case OperatorCriteria.MenorIgual
+                _WHEREstring += " <= ?"
+            Case OperatorCriteria.Mayor
+                _WHEREstring += " > ?"
+            Case OperatorCriteria.MayorIgual
+                _WHEREstring += " >= ?"
+            Case OperatorCriteria.LikeString
+                _WHEREstring += " LIKE ?"
+            Case OperatorCriteria.Between
+                _WHEREstring += " BETWEEN ? AND ?"
+                AddWHEREparam(value)
+                If IsNothing(valueEnd) Then
+                    AddWHEREparam(value)
+                Else
+                    AddWHEREparam(valueEnd)
+                End If
+
+                Exit Sub
+        End Select
+        AddWHEREparam(value)
+    End Sub
+
 
     ''' <summary>
     ''' Genera una consulta SQL "SELECT" segun los parametros de la clase. Segun se escoja puede devolver una cadena para ser procesada por el SQLCore
@@ -231,6 +327,11 @@ Public Class SQLEngineQuery
     Protected Overrides Function GenerateQuery(toProcess As Boolean) As String
         Dim tmpQuery As String = "SELECT "
         Dim tmpStr As String
+
+        If RowLimit <> 0 Then
+            tmpQuery &= "TOP " & RowLimit & " "
+        End If
+
         If _selectColumn.Count <> 0 Then                                    ' Detecta que se eligen las columnas
             For Each tmpStr In _selectColumn                                ' Agrega las columnas que se van a extraer los registros
                 tmpQuery &= tmpStr & ", "
@@ -238,6 +339,14 @@ Public Class SQLEngineQuery
             tmpQuery = tmpQuery.Remove(tmpQuery.Length - 2, 2)              ' Quitar la coma y el espacio sobrante
         Else
             tmpQuery &= "*"                                                 ' Seleccionar todas las columnas
+        End If
+
+        If _lstFunctions.Count > 0 Then
+            tmpQuery &= ", "
+            For Each a As CountSum In _lstFunctions
+                tmpQuery &= a.sqlFunction & "(" & a.rowName & ") AS " & a.asRowName & ", "
+            Next
+            tmpQuery = tmpQuery.Remove(tmpQuery.Length - 2, 2)              ' Quitar la coma y el espacio sobrante
         End If
 
         tmpQuery &= " FROM "
@@ -273,11 +382,21 @@ Public Class SQLEngineQuery
         End If
 
         If toProcess = False Then
-            Dim obj As Object
-            For Each obj In _QueryParam                                             ' Por cada parametro
-                tmpQuery = tmpQuery.Insert(tmpQuery.IndexOf("?"), obj.ToString)     ' Se reemplaza en la consulta final
-                tmpQuery = tmpQuery.Remove(tmpQuery.IndexOf("?"), 1)                ' Dando la consulta lista para depuracion
-            Next
+            Select Case _dbType
+                Case 0
+                    Dim obj As Object
+                    For Each obj In _QueryParamOle                                             ' Por cada parametro
+                        tmpQuery = tmpQuery.Insert(tmpQuery.IndexOf("?"), obj.value.ToString)     ' Se reemplaza en la consulta final
+                        tmpQuery = tmpQuery.Remove(tmpQuery.IndexOf("?"), 1)                ' Dando la consulta lista para depuracion
+                    Next
+                Case 1
+                    Dim obj As Object
+                    For Each obj In _QueryParamSql                                             ' Por cada parametro
+                        tmpQuery = tmpQuery.Insert(tmpQuery.IndexOf("?"), obj.value.ToString)     ' Se reemplaza en la consulta final
+                        tmpQuery = tmpQuery.Remove(tmpQuery.IndexOf("?"), 1)                ' Dando la consulta lista para depuracion
+                    Next
+            End Select
+
         End If
 
         Return tmpQuery
@@ -295,6 +414,7 @@ Public Class SQLEngineQuery
         _joinQuery = ""
         _QueryParam.Clear()
         _selectColumn.Clear()
+        _lstFunctions.Clear()
         _queryString = ""
         _WHEREstring = ""
 
@@ -312,6 +432,7 @@ Public Class SQLEngineQuery
         _orderColumn.Clear()
         _columnCount = 0
         _recordCount = 0
+        RowLimit = 0
     End Sub
 
 
@@ -319,7 +440,7 @@ Public Class SQLEngineQuery
     ''' Ejecuta la consulta contra la base de datos
     ''' </summary>
     ''' <returns>El resultado de la consulta. TRUE si la consulta se realizo con exito, FALSE si fallo</returns>
-    Public Function Query() As Boolean
+    Public Function Query(Optional ByVal useCustomDataReader As Boolean = False, Optional ByRef dt As DataTable = Nothing) As Boolean
         Dim core As New SQLCore
 
         With core
@@ -328,8 +449,6 @@ Public Class SQLEngineQuery
             .dbType = _dbType
             .QueryString = GenerateQuery(True)
 
-            Debug.Print(.QueryString)
-
             Select Case _dbType
                 Case 0
                     If .ExecuteQuery(True, _QueryParamOle, _queryResult) Then
@@ -337,6 +456,12 @@ Public Class SQLEngineQuery
                         _columnCount = _queryResult.Columns.Count
                         _recordCount = _queryResult.Rows.Count
                         _queryResultReader = _queryResult.CreateDataReader()
+
+                        If useCustomDataReader Then
+                            dt = _queryResult.Copy
+                        End If
+
+
                         Return True
                     Else
                         _flagReaderReady = False
@@ -350,13 +475,19 @@ Public Class SQLEngineQuery
 
                         _queryResultReader = _queryResult.CreateDataReader()
 
+                        If useCustomDataReader Then
+                            dt = _queryResult.Copy()
+                        End If
+
                         Return True
                     Else
                         _flagReaderReady = False
                         Return False
+
                     End If
                 Case Else
                     Return False
+
             End Select
         End With
     End Function

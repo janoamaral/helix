@@ -103,6 +103,8 @@ Public MustInherit Class SQLBase
         End Set
     End Property
 
+  
+
     ''' <summary>
     ''' Reinicia la clase a sus valores originales
     ''' </summary>

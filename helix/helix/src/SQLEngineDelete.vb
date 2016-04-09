@@ -9,6 +9,52 @@ Imports System.Data.OleDb
 Public Class SQLEngineDelete
     Inherits SQLBase
 
+
+    Public Enum OperatorCriteria As Byte
+        Igual = 0
+        Distinto = 1
+        Menor = 2
+        MenorIgual = 3
+        Mayor = 4
+        MayorIgual = 5
+        LikeString = 6
+        Between = 7
+    End Enum
+
+    ''' <summary>
+    ''' Agrega un query simple del formato COLUMNA operador VALOR [AND VALOR]
+    ''' </summary>
+    ''' <param name="column">Columna a buscar</param>
+    ''' <param name="searchOperator">Operador a utilizar: =, !=...</param>
+    ''' <param name="value">Valor a buscar</param>
+    ''' <param name="valueEnd">Opcional cuando se usa BETWEEN</param>
+    ''' <remarks></remarks>
+    Public Sub SimpleSearch(ByVal column As String, ByVal searchOperator As OperatorCriteria, ByVal value As Object, Optional ByVal valueEnd As Object = Nothing)
+        _WHEREstring = column
+        Select Case searchOperator
+            Case OperatorCriteria.Igual
+                _WHEREstring += " = ?"
+            Case OperatorCriteria.Distinto
+                _WHEREstring += " <> ?"
+            Case OperatorCriteria.Menor
+                _WHEREstring += " < ?"
+            Case OperatorCriteria.MenorIgual
+                _WHEREstring += " <= ?"
+            Case OperatorCriteria.Mayor
+                _WHEREstring += " > ?"
+            Case OperatorCriteria.MayorIgual
+                _WHEREstring += " >= ?"
+            Case OperatorCriteria.LikeString
+                _WHEREstring += " LIKE ?"
+            Case OperatorCriteria.Between
+                _WHEREstring += " BETWEEN ? AND ?"
+                AddWHEREparam(value)
+                AddWHEREparam(valueEnd)
+                Exit Sub
+        End Select
+        AddWHEREparam(value)
+    End Sub
+
     ''' <summary>
     ''' Ruta completa y nombre de archivo donde se van a guardar los logs
     ''' </summary>
@@ -59,6 +105,7 @@ Public Class SQLEngineDelete
         With core
             .LastError.LogFilePath = _LogFileFullName
             .ConnectionString = _connectionString
+            .QueryString = "DELETE FROM " & TableName
             .dbType = _dbType
             Select Case _dbType
                 Case 0

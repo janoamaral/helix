@@ -12,7 +12,7 @@ Public Class SQLEngine
     ''' <summary>
     ''' Cadena constante para el proveedor de db MS Access
     ''' </summary>
-    Private Const _AccessProvider As String = "Provider=Microsoft.ACE.OLEDB.12.0;"
+    Private Const _AccessProvider As String = "Provider=Microsoft.Jet.OLEDB.4.0;"
 
     ''' <summary>
     ''' Constante con el final de la cadena de conexion a MS Access
@@ -66,6 +66,12 @@ Public Class SQLEngine
     Public Db As New SQLEngineDB
 
     ''' <summary>
+    ''' Clase intermedia creadora de base de datos, tablas y usuarios
+    ''' </summary>
+    ''' <remarks></remarks>
+    Public Builder As New SQLEngineBuilder
+
+    ''' <summary>
     ''' Ruta completa y nombre de archivo donde se van a guardar los logs
     ''' </summary>
     ''' <value>Cadena con la ruta completa y el nombre de archivo del log</value>
@@ -77,6 +83,7 @@ Public Class SQLEngine
     Public Enum dataBaseType As Byte
         MS_ACCESS = 0
         SQL_SERVER = 1
+        FOXPRO = 2
     End Enum
 
 
@@ -115,7 +122,6 @@ Public Class SQLEngine
     ''' Nombre de la base de datos a conectar. Solo para uso con bases SQL Server
     ''' </summary>
     Private _dbName As String = ""
-
 
     '<----! FIN VARIABLES ---->
 
@@ -279,7 +285,6 @@ Public Class SQLEngine
             Case Else
                 Return ""
         End Select
-
         _connectionString = tmpConn
         Return tmpConn
     End Function
@@ -290,8 +295,10 @@ Public Class SQLEngine
     ''' </summary>
     ''' <returns>True si inicio correctamente. False si hubo algun fallo</returns>
     Public Function Start() As Boolean
+
         If GenerateConnectionString.Length <> 0 Then
             InitializeObjects()
+
             Dim testSQLCore As New SQLCore
             With testSQLCore
                 .dbType = _dbType
@@ -325,6 +332,17 @@ Public Class SQLEngine
         Query.ConnectionString = _connectionString
         Query.DbType = _dbType
         Query.LogFileFullName = _LogFileFullName
+
+        Db.ConnectionString = _connectionString
+        Db.DbType = _dbType
+        Db.dbPath = _dbPath
+        Db.dbName = _dbName
+
+        Builder.DatabaseType = _dbType
+        Builder.DataBaseName = _dbName
+        Builder.RequireCredentials = _requiereCredentials
+        Builder.Username = _dbUsername
+        Builder.Password = _dbPassword
     End Sub
 
 
@@ -401,11 +419,6 @@ Public Class SQLEngine
                 End Select
 
             End If
-
-
         End With
-
-
     End Function
-
 End Class

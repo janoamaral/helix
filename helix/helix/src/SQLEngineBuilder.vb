@@ -14,6 +14,24 @@ Public Class SQLEngineBuilder
         LOCAL_CURSOR = 1
     End Enum
 
+    Public Enum dbUserRoles As Byte
+        AccessAdmin = 0
+        BackupOperator = 1
+        DataReader = 2
+        DataWriter = 3
+        DdlAdmin = 4
+        DenyDataReader = 5
+        DenyDataWriter = 6
+        Owner = 7
+        SecurityAdmin = 8
+    End Enum
+
+    ''' <summary>
+    ''' Lista de roles del usuario de 
+    ''' </summary>
+    ''' <remarks></remarks>
+    Private _dbRoles As New List(Of dbUserRoles)
+
     ''' <summary>
     ''' Tipos de parametizaciones
     ''' </summary>
@@ -90,6 +108,22 @@ Public Class SQLEngineBuilder
     ''' <returns>Si debe crearse un usuario nuevo</returns>
     ''' <remarks></remarks>
     Public Property CreateDbUser As Boolean = False
+
+    ''' <summary>
+    ''' Nombre del usuario con privilegios minimos para conectarse a la base de datos 
+    ''' </summary>
+    ''' <value>Cadena con el nombre de usuario para conectarse a la base de datos</value>
+    ''' <returns>El nombre del usuario normal</returns>
+    ''' <remarks></remarks>
+    Public Property DbUsername As String = "helix_user"
+
+    ''' <summary>
+    ''' Contraseña del usuario con privilegios minimos para conectarse a la base de datos 
+    ''' </summary>
+    ''' <value>Cadena con la contraseña para conectarse a la base de datos</value>
+    ''' <returns>La contraseña del usuario normal</returns>
+    ''' <remarks></remarks>
+    Public Property DbPassword As String = "v1ttqpEE3sTd"
 
     ''' <summary>
     ''' Modo de autenticacion a la base de datos
@@ -507,6 +541,93 @@ Public Class SQLEngineBuilder
         Return False
     End Function
 
+    Public Sub AddUserRole(ByVal userRole As dbUserRoles)
+        _dbRoles.Add(userRole)
+    End Sub
+
+    ''' <summary>
+    ''' Ejecuta el script de creacion de usuario de db
+    ''' </summary>
+    ''' <returns>TRUE si se creo correctamente, FALSE si no</returns>
+    ''' <remarks></remarks>
+    Public Function CreateLoginUser() As Boolean
+        Select Case _DatabaseType
+            Case SQLEngine.dataBaseType.MS_ACCESS
+                ' TODO: Crear tablas en MS Access
+            Case SQLEngine.dataBaseType.SQL_SERVER
+                Dim tmpCore As New SQLCore
+                tmpCore.dbType = DatabaseType.SQL_SERVER
+                tmpCore.ConnectionString = GenerateConnectionString(False)
+                Dim comm As String = GenerateUserScript()
+                ' Crear el usuario
+                If tmpCore.ExecuteNonQuery(comm) Then
+                    ' Crear los permisos
+                    comm = GenerateUserPermissionScript()
+                    ' Si todo funciono deberia ejecutar correctamente
+                    Return tmpCore.ExecuteNonQuery(comm)
+                End If
+        End Select
+        Return False
+    End Function
+
+
+    Private Function GenerateUserScript() As String
+        Dim tmpStr As String = ""
+
+        If CreateDbUser = True Then
+            tmpStr = "USE [master];"
+            tmpStr &= "CREATE LOGIN [" & DbUsername & "] WITH PASSWORD=N'" & DbPassword & "', DEFAULT_DATABASE=[" & DataBaseName & "], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF;"
+            tmpStr &= "USE [" & DataBaseName & "];"
+            tmpStr &= "CREATE USER [" & DbUsername & "] FOR LOGIN [" & DbUsername & "];"
+        End If
+
+        Return tmpStr
+    End Function
+
+    ''' <summary>
+    ''' Genera el script para crear el usuario normal del sistema
+    ''' </summary>
+    ''' <returns>Cadena con el script de creacion de usuario</returns>
+    ''' <remarks></remarks>
+    Private Function GenerateUserPermissionScript() As String
+        Dim tmpStr As String = ""
+
+        If CreateDbUser = True Then
+
+            For Each role In _dbRoles
+                tmpStr &= "USE [" & DataBaseName & "];"
+
+                Dim tmpStrRole As String = ""
+                Select Case role
+                    Case dbUserRoles.AccessAdmin
+                        tmpStrRole = "db_accessadmin"
+                    Case dbUserRoles.BackupOperator
+                        tmpStrRole = "db_backupoperator"
+                    Case dbUserRoles.DataReader
+                        tmpStrRole = "db_datareader"
+                    Case dbUserRoles.DataWriter
+                        tmpStrRole = "db_datawriter"
+                    Case dbUserRoles.DdlAdmin
+                        tmpStrRole = "db_ddladmin"
+                    Case dbUserRoles.DenyDataReader
+                        tmpStrRole = "db_denydatareader"
+                    Case dbUserRoles.DenyDataWriter
+                        tmpStrRole = "db_denydatawriter"
+                    Case dbUserRoles.Owner
+                        tmpStrRole = "db_owner"
+                    Case dbUserRoles.SecurityAdmin
+                        tmpStrRole = "db_securityadmin"
+                End Select
+
+                tmpStr &= "ALTER ROLE [" & tmpStrRole & "] ADD MEMBER [" & DbUsername & "];"
+            Next
+        End If
+
+        'tmpStr &= "ALTER ROLE [public] ADD MEMBER [" & DbUsername & "];"
+        Return tmpStr
+
+    End Function
+
 
     ''' <summary>
     ''' Ejecuta el script de creacion de tabla en la base de datos 
@@ -527,13 +648,12 @@ Public Class SQLEngineBuilder
         Return False
     End Function
 
-
     ''' <summary>
     ''' Genera el comando para crear las tablas
     ''' </summary>
     ''' <returns>Cadena con el comando para crear la/s tablas</returns>
     ''' <remarks></remarks>
-    Private Function generateTableScript() As String
+    Private Function GenerateTableScript() As String
 
         Dim scriptLine As String = ""
         Dim tmpScript As String = ""
@@ -704,6 +824,12 @@ Public Class SQLEngineBuilder
 
                             Case "percent"
                                 tmpString &= "decimal(5,2)"
+
+                            Case "img"
+                                tmpString &= "image"
+
+                            Case "byte"
+                                tmpString &= "char(1)"
 
                             Case Else
                                 tmpString &= ""

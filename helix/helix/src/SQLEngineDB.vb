@@ -1,9 +1,8 @@
-﻿Option Strict On
-
-Imports System
+﻿Imports System
 Imports System.Data
 Imports System.Data.SqlClient
 Imports System.Data.OleDb
+Imports System.IO
 
 Public Class SQLEngineDB
 
@@ -22,6 +21,10 @@ Public Class SQLEngineDB
     ''' </summary>
     ''' <remarks>Almacena un schema de la base de datos para extraccion de informacion de la propia base (cantidad de tablas, etc)</remarks>
     Private _dbInfo As DataTable
+
+    Public Property dbPath As String = ""
+
+    Public Property dbName As String = ""
 
     ''' <summary>
     ''' Guarda o retorna la cadena de conexion a la base de datos segun los parametros ingresados
@@ -141,4 +144,5 @@ Public Class SQLEngineDB
             Return 0
         End Try
     End Function
+
 End Class
