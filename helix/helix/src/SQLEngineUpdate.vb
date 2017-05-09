@@ -181,7 +181,7 @@ Public Class SQLEngineUpdate
                 End Select
 
             Else
-                tmpSET &= tmpUpdateValues & "= ?, "
+                tmpSET &= tmpUpdateValues & "=?, "
             End If
             i += 1
         Next
@@ -189,7 +189,13 @@ Public Class SQLEngineUpdate
         tmpQuery &= tmpSET.Remove(tmpSET.Length - 2, 2) ' quita el ultimo , y espacio
 
         If _WHEREstring.Length <> 0 Then
-            tmpQuery &= " WHERE (" & _WHEREstring & ")" ' Agrega la seccion WHERE
+            Select Case _dbType
+                Case 0
+                    tmpQuery &= " WHERE " & _WHEREstring
+                Case 1
+                    tmpQuery &= " WHERE (" & _WHEREstring & ")" ' Agrega la seccion WHERE
+            End Select
+
         End If
 
         If toProcess = False Then

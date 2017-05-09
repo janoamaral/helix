@@ -84,6 +84,37 @@ Public Class SQLEngineQuery
     ''' <remarks></remarks>
     Private _orderColumn As New List(Of String)
 
+    Private _columnNames As New List(Of String)
+
+    Private Structure ExcludeField
+        Dim column As String
+        Dim eOperator As Byte
+        Dim value As Object
+    End Structure
+
+    Private _excludeFields As New List(Of ExcludeField)
+
+
+    Public ReadOnly Property ColumnNames As List(Of String)
+        Get
+            Return _columnNames
+        End Get
+    End Property
+
+
+    ' TODO: Cambiarle el nombre de excluir 
+    Public Sub _AND(ByVal fieldName As String, ByVal eOperator As OperatorCriteria, ByVal value As Object)
+        Dim tmpXclude As ExcludeField
+        tmpXclude.column = fieldName
+        tmpXclude.eOperator = eOperator
+        tmpXclude.value = value
+
+        _excludeFields.Add(tmpXclude)
+    End Sub
+
+
+
+
     ''' <summary>
     ''' Modo de ordenacion del resultado el query
     ''' </summary>
@@ -372,6 +403,8 @@ Public Class SQLEngineQuery
             tmpQuery &= " WHERE " & _WHEREstring
         End If
 
+
+
         If _orderColumn.Count > 0 Then
             tmpQuery &= " ORDER BY "
             For Each tmpStr In _orderColumn
@@ -415,8 +448,11 @@ Public Class SQLEngineQuery
         _QueryParam.Clear()
         _selectColumn.Clear()
         _lstFunctions.Clear()
+        _columnNames.Clear()
+        _excludeFields.Clear()
         _queryString = ""
         _WHEREstring = ""
+
 
         If _queryResult.IsInitialized Then
             _queryResult.Reset()
@@ -473,6 +509,12 @@ Public Class SQLEngineQuery
                         _columnCount = _queryResult.Columns.Count
                         _recordCount = _queryResult.Rows.Count
 
+                        Dim i As Integer = 0
+                        While i < _queryResult.Columns.Count
+                            _columnNames.Add(_queryResult.Columns.Item(i).ColumnName)
+                            i += 1
+                        End While
+
                         _queryResultReader = _queryResult.CreateDataReader()
 
                         If useCustomDataReader Then
@@ -491,5 +533,6 @@ Public Class SQLEngineQuery
             End Select
         End With
     End Function
+
 
 End Class

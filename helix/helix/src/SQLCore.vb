@@ -4,6 +4,7 @@ Imports System
 Imports System.Data
 Imports System.Data.SqlClient
 Imports System.Data.OleDb
+Imports MySql.Data.MySqlClient
 
 Public Class SQLCore
 
@@ -34,7 +35,7 @@ Public Class SQLCore
     ''' <summary>
     ''' Setea o devuelve el tipo de base de datos
     ''' </summary>
-    ''' <value>0 si es MS Access / 1 si es SQL Server</value>
+    ''' <value>0 si es MS Access / 1 si es SQL Server / 2 mysql</value>
     ''' <returns>El tipo de base de datos actual</returns>
     Public Property dbType As Integer
         Get
@@ -75,6 +76,20 @@ Public Class SQLCore
                     End Try
                     Return True
                 End Using
+            Case 2
+                Using connection As New MySqlConnection(_connectionString)
+                    Try
+                        connection.Open()
+                    Catch ex As Exception
+                        LastError.SetError(ex, "SQLCore", "TestConnectionMySql")
+                        Return False
+                    Finally
+                        connection.Close()
+                        connection.Dispose()
+                    End Try
+                    Return True
+                End Using
+
             Case Else                                                           ' Cualquier otro modo
                 Return False
         End Select

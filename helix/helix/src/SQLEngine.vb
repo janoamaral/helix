@@ -6,6 +6,7 @@ Imports System.Data
 Imports System.Data.SqlClient
 Imports System.Data.OleDb
 
+
 Public Class SQLEngine
 
     '<--! INICIO CONSTANTES -->
@@ -33,6 +34,7 @@ Public Class SQLEngine
     ''' Constante con el final de la cadena de conexion a SQL Server
     ''' </summary>
     Private Const _SQLServerConnTrailer As String = "Connect Timeout=30;Encrypt=False;TrustServerCertificate=False"
+
     '<--! FIN CONSTANTES -->
 
 
@@ -83,7 +85,8 @@ Public Class SQLEngine
     Public Enum dataBaseType As Byte
         MS_ACCESS = 0
         SQL_SERVER = 1
-        FOXPRO = 2
+        MYSQL = 2
+        FOXPRO = 3
     End Enum
 
 
@@ -93,7 +96,7 @@ Public Class SQLEngine
     Private _connectionString As String = ""
 
     ''' <summary>
-    ''' Tipo de base de datos. MsAccess = 0 / SQL Server = 1
+    ''' Tipo de base de datos. MsAccess = 0 / SQL Server = 1 / MySql = 2
     ''' </summary>
     ''' <remarks></remarks>
     Private _dbType As dataBaseType = dataBaseType.MS_ACCESS
@@ -123,6 +126,11 @@ Public Class SQLEngine
     ''' </summary>
     Private _dbName As String = ""
 
+    ''' <summary>
+    ''' El puerto de escucha del servidor
+    ''' </summary>
+    Private _dbPort As Integer = 0
+
     '<----! FIN VARIABLES ---->
 
 
@@ -132,7 +140,7 @@ Public Class SQLEngine
     ''' <summary>
     ''' Guarda o retorna el tipo de base de datos con la que se va a trabajar
     ''' </summary>
-    ''' <value>Entero mayor que 0 indicando el tipo de base de datos. MS Access = 0 / SQL Server = 1</value>
+    ''' <value>Entero mayor que 0 indicando el tipo de base de datos. MS Access = 0 / SQL Server = 1 / MySQL = 2</value>
     ''' <returns>El tipo de base de datos a trabajar</returns>
     Public Property dbType As dataBaseType
         Get
@@ -229,6 +237,19 @@ Public Class SQLEngine
         End Set
     End Property
 
+    ''' <summary>
+    ''' Guarda o retorna el puerto de escucha del servidor
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property Port As Integer
+        Get
+            Return _dbPort
+        End Get
+        Set(value As Integer)
+            _dbPort = value
+        End Set
+    End Property
+
 
     ''' <summary>
     ''' Indica si el motor esta encendido o apagado
@@ -282,6 +303,39 @@ Public Class SQLEngine
                 End If
                 tmpConn &= _SQLServerConnTrailer
 
+            Case dataBaseType.MYSQL
+
+                ' Generar cadena en el caso de MySql
+                If _dbPath.Length <> 0 Then
+                    tmpConn &= "Host=" & _dbPath & ";"
+                Else
+                    Return ""
+                End If
+
+                If _dbUsername.Length > 0 Then
+                    tmpConn &= "Uid=" & _dbUsername & ";"
+                Else
+                    Return ""
+                End If
+
+                If _dbPassword.Length > 0 Then
+                    tmpConn &= "Pwd=" & _dbPassword & ";"
+                Else
+                    Return ""
+                End If
+
+
+                ' Puerto opcional
+                If _dbPort > 0 Then
+                    tmpConn &= "Port=" & _dbPort & ";"
+                End If
+
+
+                If _dbName.Length <> 0 Then
+                    tmpConn &= "Database=" & _dbName & ";"
+                Else
+                    Return ""
+                End If
             Case Else
                 Return ""
         End Select
