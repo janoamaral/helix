@@ -391,4 +391,42 @@ Public Class SQLCore
         End Try
     End Function
 
+
+    ''' <summary>
+    ''' Ejecuta una consulta contra una base datos MySql
+    ''' </summary>
+    ''' <param name="processParam">Flag indicando si hay parametros a procesar</param>
+    ''' <param name="Param">Lista de parametros a procesar (Clausula WHERE)</param>
+    ''' <param name="dbReader">DataReader donde se van a almacenar los registros recuperados</param>
+    ''' <returns>El estado de la operacion. TRUE si la operacion fue un exito, FALSE si fallo</returns>
+    Public Overloads Function ExecuteQuery(ByVal processParam As Boolean, ByVal Param As List(Of MySqlParameter), ByRef dbReader As DataTable) As Boolean
+        Dim MySqlconnection As New MySqlConnection(_connectionString)
+        Dim MySqlcommand As New MySqlCommand(_queryString, MySqlconnection)
+        Dim MySqlReader As MySqlDataReader
+
+        If processParam = True Then
+            Dim tmpParam As MySqlParameter
+            Dim tmpPos As Integer
+            For Each tmpParam In Param
+                tmpPos = MySqlcommand.CommandText.IndexOf("?")
+                MySqlcommand.CommandText = MySqlcommand.CommandText.Remove(tmpPos, 1)
+                MySqlcommand.CommandText = MySqlcommand.CommandText.Insert(tmpPos, tmpParam.ParameterName)
+                MySqlcommand.Parameters.AddWithValue(tmpParam.ParameterName, tmpParam.Value)
+            Next
+        End If
+
+        Try
+            MySqlconnection.Open()
+            MySqlReader = MySqlcommand.ExecuteReader()
+            dbReader.Load(MySqlReader)                ' Pasa el resultado del datareader al data table para ser procesado y que no se pierda al cerrar la conexion
+
+            MySqlconnection.Close()
+            Return True
+        Catch ex As Exception
+            Console.WriteLine(ex.Message)
+            LastError.SetError(ex, "SQLCore", "ExecuteQuery2 MySql")
+            Return False
+        End Try
+    End Function
+
 End Class

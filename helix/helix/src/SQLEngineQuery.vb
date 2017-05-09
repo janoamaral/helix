@@ -3,6 +3,7 @@ Imports System
 Imports System.Data
 Imports System.Data.SqlClient
 Imports System.Data.OleDb
+Imports MySql.Data.MySqlClient
 
 Public Class SQLEngineQuery
     Inherits SQLBase
@@ -231,6 +232,11 @@ Public Class SQLEngineQuery
                 sqlparam.Value = param
                 sqlparam.ParameterName = "@p" & _QueryParamSql.Count
                 _QueryParamSql.Add(sqlparam)
+            Case 2
+                Dim mySqlparam As New MySqlParameter
+                mySqlparam.Value = param
+                mySqlparam.ParameterName = "@p" & _QueryParamMySql.Count
+                _QueryParamMySql.Add(mySqlparam)
         End Select
     End Sub
 
@@ -428,6 +434,12 @@ Public Class SQLEngineQuery
                         tmpQuery = tmpQuery.Insert(tmpQuery.IndexOf("?"), obj.value.ToString)     ' Se reemplaza en la consulta final
                         tmpQuery = tmpQuery.Remove(tmpQuery.IndexOf("?"), 1)                ' Dando la consulta lista para depuracion
                     Next
+                Case 2
+                    Dim obj As Object
+                    For Each obj In _QueryParamMySql                                             ' Por cada parametro
+                        tmpQuery = tmpQuery.Insert(tmpQuery.IndexOf("?"), obj.value.ToString)     ' Se reemplaza en la consulta final
+                        tmpQuery = tmpQuery.Remove(tmpQuery.IndexOf("?"), 1)                ' Dando la consulta lista para depuracion
+                    Next
             End Select
 
         End If
@@ -465,6 +477,7 @@ Public Class SQLEngineQuery
 
         _QueryParamOle.Clear()
         _QueryParamSql.Clear()
+        _QueryParamMySql.Clear()
         _orderColumn.Clear()
         _columnCount = 0
         _recordCount = 0
@@ -505,6 +518,30 @@ Public Class SQLEngineQuery
                     End If
                 Case 1
                     If .ExecuteQuery(True, _QueryParamSql, _queryResult) Then
+                        _flagReaderReady = True
+                        _columnCount = _queryResult.Columns.Count
+                        _recordCount = _queryResult.Rows.Count
+
+                        Dim i As Integer = 0
+                        While i < _queryResult.Columns.Count
+                            _columnNames.Add(_queryResult.Columns.Item(i).ColumnName)
+                            i += 1
+                        End While
+
+                        _queryResultReader = _queryResult.CreateDataReader()
+
+                        If useCustomDataReader Then
+                            dt = _queryResult.Copy()
+                        End If
+
+                        Return True
+                    Else
+                        _flagReaderReady = False
+                        Return False
+
+                    End If
+                Case 2
+                    If .ExecuteQuery(True, _QueryParamMySql, _queryResult) Then
                         _flagReaderReady = True
                         _columnCount = _queryResult.Columns.Count
                         _recordCount = _queryResult.Rows.Count

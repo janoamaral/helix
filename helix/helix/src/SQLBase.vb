@@ -3,8 +3,9 @@ Option Strict On
 
 Imports System
 Imports System.Data
-Imports System.Data.SqlClient
 Imports System.Data.OleDb
+Imports System.Data.SqlClient
+Imports MySql.Data.MySqlClient
 
 Public MustInherit Class SQLBase
 
@@ -47,6 +48,8 @@ Public MustInherit Class SQLBase
     Protected _QueryParamOle As New List(Of OleDbParameter)
 
     Protected _QueryParamSql As New List(Of SqlParameter)
+
+    Protected _QueryParamMySql As New List(Of MySqlParameter)
 
     ''' <summary>
     ''' La consulta que se va a relizar contra la base de datos
