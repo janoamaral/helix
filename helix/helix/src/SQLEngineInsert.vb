@@ -5,6 +5,7 @@ Imports System
 Imports System.Data
 Imports System.Data.SqlClient
 Imports System.Data.OleDb
+Imports MySql.Data.MySqlClient
 
 Public Class SQLEngineInsert
     Inherits SQLBase
@@ -43,6 +44,11 @@ Public Class SQLEngineInsert
                 sqlparam.Value = value
                 sqlparam.ParameterName = "@p" & _QueryParamSql.Count
                 _QueryParamSql.Add(sqlparam)
+            Case 2
+                Dim mySqlparam As New MySqlParameter
+                mySqlparam.Value = value
+                mySqlparam.ParameterName = "@p" & _QueryParamMySql.Count
+                _QueryParamMySql.Add(mySqlparam)
         End Select
 
 
@@ -66,6 +72,8 @@ Public Class SQLEngineInsert
                         Return .ExecuteNonQuery(True, _QueryParamOle)
                     Case 1
                         Return .ExecuteNonQuery(True, _QueryParamSql)
+                    Case 2
+                        Return .ExecuteNonQuery(True, _QueryParamMySql)
                     Case Else
                         Return False
                 End Select
@@ -96,6 +104,8 @@ Public Class SQLEngineInsert
                         Return .ExecuteNonQuery(True, _QueryParamOle, lastID)
                     Case 1
                         Return .ExecuteNonQuery(True, _QueryParamSql, lastID)
+                    Case 2
+                        Return .ExecuteNonQuery(True, _QueryParamMySql, lastID)
                     Case Else
                         Return False
                 End Select
@@ -114,6 +124,7 @@ Public Class SQLEngineInsert
         _listOfInsert.Clear()
         _QueryParamOle.Clear()
         _QueryParamSql.Clear()
+        _QueryParamMySql.Clear()
         _QueryParam.Clear()
         _queryString = ""
         _WHEREstring = ""

@@ -2,8 +2,9 @@
 
 Imports System
 Imports System.Data
-Imports System.Data.SqlClient
 Imports System.Data.OleDb
+Imports System.Data.SqlClient
+Imports MySql.Data.MySqlClient
 
 Public Class SQLEngineUpdate
     Inherits SQLBase
@@ -60,6 +61,11 @@ Public Class SQLEngineUpdate
             Case 1
                 Dim sqlparam As New SqlParameter
                 sqlparam.Value = value
+                sqlparam.ParameterName = "@p" & _QueryParamSql.Count
+                _QueryParamSql.Add(sqlparam)
+            Case 2
+                Dim mySqlparam As New mySqlParameter
+                mySqlparam.Value = value
                 sqlparam.ParameterName = "@p" & _QueryParamSql.Count
                 _QueryParamSql.Add(sqlparam)
         End Select

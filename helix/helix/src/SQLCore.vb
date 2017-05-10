@@ -195,6 +195,44 @@ Public Class SQLCore
         End Using
     End Function
 
+    ''' <summary>
+    ''' Ejecuta una consulta que no requiere devolver datos (ej: dataReader, SQLSchema, etc)
+    ''' </summary>
+    ''' <param name="processParam">Flag indicando si hay parametros para ser procesados</param>
+    ''' <param name="Param">Lista de parametros</param>
+    ''' <returns>El resultado de la operacion. TRUE se ejecuto con exito, FALSE fallo</returns>
+    Public Overloads Function ExecuteNonQuery(ByVal processParam As Boolean, Optional ByVal Param As List(Of MySqlParameter) = Nothing) As Boolean
+        Using connection As New MySqlConnection(_connectionString)
+            Dim command As New MySqlCommand(_queryString, connection)
+
+            If processParam = True Then
+                Dim tmpParam As MySqlParameter
+                Dim tmpPos As Integer
+                For Each tmpParam In Param
+                    tmpPos = command.CommandText.IndexOf("?")
+                    If tmpPos >= 0 Then
+                        command.CommandText = command.CommandText.Remove(tmpPos, 1)
+                        command.CommandText = command.CommandText.Insert(tmpPos, tmpParam.ParameterName)
+                        command.Parameters.AddWithValue(tmpParam.ParameterName, tmpParam.Value)
+                    Else
+                        Return False
+                    End If
+                Next
+            End If
+
+            Try
+                connection.Open()
+                command.ExecuteNonQuery()
+                connection.Close()
+                Return True
+            Catch ex As Exception
+                Console.Write(ex.Message)
+                LastError.SetError(ex, "SQLCore", "ExecuteNonQuery MySql 1")
+                Return False
+            End Try
+        End Using
+    End Function
+
 
     ''' <summary>
     ''' Ejecuta una consulta en MS Access que requiere devolver datos (ultimo ID creado)
@@ -284,6 +322,49 @@ Public Class SQLCore
                 Console.Write(ex.Message)
                 lastID = 0
                 LastError.SetError(ex, "SQLCore", "ExecuteNonQuery4")
+                Return False
+            End Try
+        End Using
+    End Function
+
+    ''' <summary>
+    ''' Ejecuta una consulta en SQL Server que requiere devolver datos (ultimo ID creado)
+    ''' </summary>
+    ''' <param name="processParam">Flag indicando si hay parametros para ser procesados</param>
+    ''' <param name="Param">Lista de parametros</param>
+    ''' <param name="lastID">Contenedor donde va a ser devuelto el ultimo ID creado</param>
+    ''' <returns>El resultado de la operacion. TRUE se ejecuto con exito, FALSE fallo</returns>
+    Public Overloads Function ExecuteNonQuery(ByVal processParam As Boolean, ByVal Param As List(Of MySqlParameter), ByRef lastID As Long) As Boolean
+        Using connection As New MySqlConnection(_connectionString)
+
+            ' Llamada a la funcion en la base LAST_INSERT_ID() que devuelve el ultimo ID
+            Dim tmpQueryString As String = _queryString
+
+            Dim command As New MySqlCommand(_queryString, connection)
+
+            If processParam = True Then
+                Dim tmpParam As MySqlParameter
+                Dim tmpPos As Integer
+                For Each tmpParam In Param
+                    tmpPos = command.CommandText.IndexOf("?")
+                    command.CommandText = command.CommandText.Remove(tmpPos, 1)
+                    command.CommandText = command.CommandText.Insert(tmpPos, tmpParam.ParameterName)
+                    command.Parameters.AddWithValue(tmpParam.ParameterName, tmpParam.Value)
+                Next
+            End If
+
+            Try
+                connection.Open()
+                ' Cambio de ejecutar ExecuteNonQuery a ExecuteScalar para que devuelva el ID
+                command.ExecuteNonQuery()
+                command.CommandText = "SELECT LAST_INSERT_ID()"
+                lastID = Convert.ToInt32(command.ExecuteScalar())
+                connection.Close()
+                Return True
+            Catch ex As Exception
+                Console.Write(ex.Message)
+                lastID = 0
+                LastError.SetError(ex, "SQLCore", "ExecuteNonQuery MySql 2")
                 Return False
             End Try
         End Using
