@@ -84,4 +84,29 @@ Imports helix
             Assert.AreEqual(0, newId)
         End With
     End Sub
+
+    <TestMethod()> Public Sub MySqlUpdate()
+        Dim a As New SQLEngine
+        a.DatabaseName = "soccam"
+        a.dbType = SQLEngine.dataBaseType.MYSQL
+        a.Path = "200.42.62.140"
+        a.Username = "soccam"
+        a.Password = "Camara2017!"
+        a.Port = 3306
+        a.Start()
+        With a.Update
+            .Reset()
+            .TableName = "SOCIO"
+            .AddColumnValue("SOCIO_NOMBRE", "TEST UPDATE")
+            .AddColumnValue("SOCIO_APELLIDO", "DESDE SOCCAM")
+            .AddColumnValue("SOCIO_DELETED", 1)
+            .AddColumnValue("SOCIO_ESTADO", 0)
+            .AddColumnValue("SOCIO_MODIFICADO", Now())
+            .WHEREstring = "SOCIO_ID >= ?"
+            .AddWHEREparam(81119)
+
+            Debug.Print(.SqlQueryString)
+            Assert.IsTrue(.Update)
+        End With
+    End Sub
 End Class

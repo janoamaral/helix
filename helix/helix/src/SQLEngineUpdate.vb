@@ -66,8 +66,8 @@ Public Class SQLEngineUpdate
             Case 2
                 Dim mySqlparam As New mySqlParameter
                 mySqlparam.Value = value
-                sqlparam.ParameterName = "@p" & _QueryParamSql.Count
-                _QueryParamSql.Add(sqlparam)
+                mySqlparam.ParameterName = "@p" & _QueryParamMySql.Count
+                _QueryParamMySql.Add(mySqlparam)
         End Select
 
     End Sub
@@ -88,6 +88,11 @@ Public Class SQLEngineUpdate
                 sqlparam.Value = param
                 sqlparam.ParameterName = "@p" & _QueryParamSql.Count
                 _QueryParamSql.Add(sqlparam)
+            Case 2
+                Dim mySqlparam As New MySqlParameter
+                mySqlparam.Value = param
+                mySqlparam.ParameterName = "@p" & _QueryParamMySql.Count
+                _QueryParamMySql.Add(mySqlparam)
         End Select
     End Sub
 
@@ -101,6 +106,7 @@ Public Class SQLEngineUpdate
         _WHEREstring = ""
         _listOfUpdate.Clear()
         _QueryParamSql.Clear()
+        _QueryParamMySql.Clear()
         _QueryParamOle.Clear()
     End Sub
 
@@ -154,6 +160,8 @@ Public Class SQLEngineUpdate
                     Return .ExecuteNonQuery(True, _QueryParamOle)
                 Case 1
                     Return .ExecuteNonQuery(True, _QueryParamSql)
+                Case 2
+                    Return .ExecuteNonQuery(True, _QueryParamMySql)
                 Case Else
                     Return False
             End Select
@@ -184,6 +192,8 @@ Public Class SQLEngineUpdate
                         tmpSET &= tmpUpdateValues & "=" & _QueryParamOle(i).Value.ToString & ", "
                     Case 1
                         tmpSET &= tmpUpdateValues & "=" & _QueryParamSql(i).Value.ToString & ", "
+                    Case 2
+                        tmpSET &= tmpUpdateValues & "=" & _QueryParamMySql(i).Value.ToString & ", "
                 End Select
 
             Else
@@ -200,6 +210,8 @@ Public Class SQLEngineUpdate
                     tmpQuery &= " WHERE " & _WHEREstring
                 Case 1
                     tmpQuery &= " WHERE (" & _WHEREstring & ")" ' Agrega la seccion WHERE
+                Case 2
+                    tmpQuery &= " WHERE " & _WHEREstring
             End Select
 
         End If
