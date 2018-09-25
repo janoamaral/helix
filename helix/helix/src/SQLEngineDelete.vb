@@ -3,8 +3,9 @@ Option Strict On
 
 Imports System
 Imports System.Data
-Imports System.Data.SqlClient
 Imports System.Data.OleDb
+Imports System.Data.SqlClient
+Imports MySql.Data.MySqlClient
 
 Public Class SQLEngineDelete
     Inherits SQLBase
@@ -61,7 +62,7 @@ Public Class SQLEngineDelete
     ''' <value>Cadena con la ruta completa y el nombre de archivo del log</value>
     ''' <returns>La ruta y el nombre del archivo log</returns>
     ''' <remarks></remarks>
-    Public Property LogFileFullName As String = Application.StartupPath & "\syslog.log"
+    Public Property LogFileFullName As String = My.Computer.FileSystem.SpecialDirectories.Temp & "\" & "syslog.log"
 
     ''' <summary>
     ''' Guarda o retorna la cadena con la clausula WHERE
@@ -93,6 +94,11 @@ Public Class SQLEngineDelete
                 sqlparam.Value = param
                 sqlparam.ParameterName = "@p" & _QueryParamSql.Count
                 _QueryParamSql.Add(sqlparam)
+            Case 2
+                Dim mySqlparam As New MySqlParameter
+                mySqlparam.Value = param
+                mySqlparam.ParameterName = "@p" & _QueryParamMySql.Count
+                _QueryParamMySql.Add(mySqlparam)
         End Select
     End Sub
 
@@ -113,6 +119,9 @@ Public Class SQLEngineDelete
                     Return .ExecuteNonQuery(False, dummy)
                 Case 1
                     Dim dummy As New List(Of SqlParameter)
+                    Return .ExecuteNonQuery(False, dummy)
+                Case 2
+                    Dim dummy As New List(Of MySqlParameter)
                     Return .ExecuteNonQuery(False, dummy)
                 Case Else
                     Return False
@@ -137,6 +146,8 @@ Public Class SQLEngineDelete
                         Return .ExecuteNonQuery(True, _QueryParamOle)
                     Case 1
                         Return .ExecuteNonQuery(True, _QueryParamSql)
+                    Case 2
+                        Return .ExecuteNonQuery(True, _QueryParamMySql)
                     Case Else
                         Return False
                 End Select
@@ -153,6 +164,7 @@ Public Class SQLEngineDelete
         _QueryParam.Clear()
         _QueryParamOle.Clear()
         _QueryParamSql.Clear()
+        _QueryParamMySql.Clear()
         _queryString = ""
         _tableName = ""
         _WHEREstring = ""

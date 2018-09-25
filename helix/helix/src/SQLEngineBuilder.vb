@@ -312,19 +312,26 @@ Public Class SQLEngineBuilder
     ''' <returns>True si se creo con exito, False si fallo</returns>
     ''' <remarks></remarks>
     Public Function CreateNewDataBase() As Boolean
+        Dim tmpStr As String
         Select Case _DatabaseType
             Case SQLEngine.dataBaseType.MS_ACCESS
                 ' TODO: Crear base de datos en ms access
+                Dim bAns As Boolean
+                Dim cat As New ADOX.Catalog
+                Try
+
+                Catch ex As Exception
+
+                End Try
             Case SQLEngine.dataBaseType.SQL_SERVER
-                Dim tmpStr As String
 
                 Dim strAlterPrefix As String = "ALTER DATABASE [" & _DataBaseName & "] SET "
 
-                tmpStr = "CREATE DATABASE [" & _DataBaseName & "] CONTAINMENT = NONE ON  PRIMARY " & _
+                tmpStr = "CREATE DATABASE [" & _DataBaseName & "] CONTAINMENT = NONE ON  PRIMARY " &
                         "( NAME = N'" & _DataBaseName & "', FILENAME = N'" & SQLDbProperties.dbFullPath & _DataBaseName & ".mdf', "
                 tmpStr += "SIZE = " & SQLDbProperties.dbInitialSizeKb & "KB , "
                 tmpStr += "FILEGROWTH = " & SQLDbProperties.dbFileGrowth & " ) "
-                tmpStr += "LOG ON ( NAME = N'" & _DataBaseName & "_log', FILENAME = N'" & SQLDbProperties.dbFullPath & _DataBaseName & "_log.ldf' , SIZE = " & _
+                tmpStr += "LOG ON ( NAME = N'" & _DataBaseName & "_log', FILENAME = N'" & SQLDbProperties.dbFullPath & _DataBaseName & "_log.ldf' , SIZE = " &
                           SQLDbProperties.logSizeKb.ToString & "KB , FILEGROWTH = " & SQLDbProperties.logFileGrowth & ");"
 
 
@@ -534,7 +541,7 @@ Public Class SQLEngineBuilder
                 'End If
 
                 Dim tmpCore As New SQLCore
-                tmpCore.dbType = DatabaseType.SQL_SERVER
+                tmpCore.dbType = dataBaseType.SQL_SERVER
                 tmpCore.ConnectionString = GenerateConnectionString(True)
                 Return tmpCore.ExecuteNonQuery(tmpStr)
         End Select

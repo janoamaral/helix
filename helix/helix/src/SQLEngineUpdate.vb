@@ -28,7 +28,7 @@ Public Class SQLEngineUpdate
     ''' <value>Cadena con la ruta completa y el nombre de archivo del log</value>
     ''' <returns>La ruta y el nombre del archivo log</returns>
     ''' <remarks></remarks>
-    Public Property LogFileFullName As String = Application.StartupPath & "\syslog.log"
+    Public Property LogFileFullName As String = My.Computer.FileSystem.SpecialDirectories.Temp & "\" & "syslog.log"
 
     ''' <summary>
     ''' Lista de parametros Columna/Valor para ser insertados en la tabla

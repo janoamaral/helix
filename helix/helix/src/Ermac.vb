@@ -13,7 +13,8 @@ Public Class Ermac
     ''' <value>Cadena con la ruta y nombre de archivo log</value>
     ''' <returns>La ruta completa con nombre de archivo log</returns>
     ''' <remarks></remarks>
-    Public Property LogFilePath As String = Application.StartupPath & "\syslog.log"
+    Public Property LogFilePath As String = My.Computer.FileSystem.SpecialDirectories.Temp & "\" & "syslog.log"
+
 
     ''' <summary>
     ''' Propiedad de visiblidad del archivo en el sistema operativo

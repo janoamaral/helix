@@ -19,11 +19,43 @@ Public Class SQLEngineQuery
         Between = 7
     End Enum
 
+    Public Const OPERATOR_IGUAL As String = " = ? "
+    Public Const OPERATOR_DISTINTO As String = " <> ? "
+    Public Const OPERATOR_MENOR As String = " < ?"
+    Public Const OPERATOR_MENORIGUAl As String = " <= ? "
+    Public Const OPERATOR_MAYOR As String = " > ? "
+    Public Const OPERATOR_MAYORIGUAl As String = " >= ? "
+    Public Const OPERATOR_LIKE As String = " LIKE ? "
+    Public Const OPERATOR_BETWEEN As String = " BETWEEN ? AND ? "
+
     Private Structure CountSum
         Dim sqlFunction As String
         Dim rowName As String
         Dim asRowName As String
     End Structure
+
+    Public Function OperatorString(ByVal operador As OperatorCriteria) As String
+        Select Case operador
+            Case OperatorCriteria.Igual
+                Return OPERATOR_IGUAL
+            Case OperatorCriteria.Distinto
+                Return Operator_Distinto
+            Case OperatorCriteria.Menor
+                Return Operator_Menor
+            Case OperatorCriteria.MenorIgual
+                Return Operator_MenorIgual
+            Case OperatorCriteria.Mayor
+                Return Operator_Mayor
+            Case OperatorCriteria.MayorIgual
+                Return Operator_MayorIgual
+            Case OperatorCriteria.LikeString
+                Return Operator_Like
+            Case OperatorCriteria.Between
+                Return Operator_Between
+            Case Else
+                Return ""
+        End Select
+    End Function
 
     Private _lstFunctions As New List(Of CountSum)
 
@@ -33,7 +65,7 @@ Public Class SQLEngineQuery
     ''' <value>Cadena con la ruta completa y el nombre de archivo del log</value>
     ''' <returns>La ruta y el nombre del archivo log</returns>
     ''' <remarks></remarks>
-    Public Property LogFileFullName As String = Application.StartupPath & "\syslog.log"
+    Public Property LogFileFullName As String = My.Computer.FileSystem.SpecialDirectories.Temp & "\" & "syslog.log"
 
     ''' <summary>
     ''' Almacena las partes de la consulta JOIN

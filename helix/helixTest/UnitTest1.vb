@@ -109,4 +109,23 @@ Imports helix
             Assert.IsTrue(.Update)
         End With
     End Sub
+
+    <TestMethod()> Public Sub MySqlDelete()
+        Dim a As New SQLEngine
+        a.DatabaseName = "soccam"
+        a.dbType = SQLEngine.dataBaseType.MYSQL
+        a.Path = "200.42.62.140"
+        a.Username = "soccam"
+        a.Password = "Camara2017!"
+        a.Port = 3306
+        a.Start()
+        With a.Delete
+            .Reset()
+            .TableName = "SOCIO"
+            .WHEREstring = "SOCIO_ID >= ?"
+            .AddWHEREparam(81117)
+
+            Assert.IsTrue(.Delete)
+        End With
+    End Sub
 End Class

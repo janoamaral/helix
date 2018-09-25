@@ -89,7 +89,11 @@ Public MustInherit Class SQLBase
     ''' <returns>La consulta SQL</returns>
     Public ReadOnly Property SqlQueryString As String
         Get
-            Return GenerateQuery(False)
+            If _dbType = 1 Then
+                Return GenerateQuery(False).Replace("TRUE", "1").Replace("FALSE", "0")
+            Else
+                Return GenerateQuery(False)
+            End If
         End Get
     End Property
 

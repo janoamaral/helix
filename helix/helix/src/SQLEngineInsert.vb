@@ -16,7 +16,9 @@ Public Class SQLEngineInsert
     ''' <value>Cadena con la ruta completa y el nombre de archivo del log</value>
     ''' <returns>La ruta y el nombre del archivo log</returns>
     ''' <remarks></remarks>
-    Public Property LogFileFullName As String = Application.StartupPath & "\syslog.log"
+    Public Property LogFileFullName As String = My.Computer.FileSystem.SpecialDirectories.Temp & "\" & "syslog.log"
+
+    Public Property KeepConnectionAlive As Boolean = False
 
     ''' <summary>
     ''' Lista de parametros Columna/Valor para ser insertados en la tabla
@@ -146,7 +148,7 @@ Public Class SQLEngineInsert
         Dim i As Integer = 0
 
         For Each tmpFieldValue In _listOfInsert             ' Por cada parametro
-            columns &= tmpFieldValue & ", "  ' Los campos sea para proceso o para depuracion siempre van a ser en texto plano
+            columns &= tmpFieldValue & ", "                 ' Los campos sea para proceso o para depuracion siempre van a ser en texto plano
             If toProcess = False Then
                 values &= tmpFieldValue & ", "
             Else

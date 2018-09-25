@@ -79,7 +79,16 @@ Public Class SQLEngine
     ''' <value>Cadena con la ruta completa y el nombre de archivo del log</value>
     ''' <returns>La ruta y el nombre del archivo log</returns>
     ''' <remarks></remarks>
-    Public Property LogFileFullName As String = Application.StartupPath & "\syslog.log"
+    Public Property LogFileFullName As String = My.Computer.FileSystem.SpecialDirectories.Temp & "\" & "syslog.log"
+
+
+    ''' <summary>
+    ''' Cadena de conexion a la base de datos de Access
+    ''' </summary>
+    ''' <returns>La cadena de conexon a la base de datos de MS Access</returns>
+    Public Property AccessConnectionString As String = ""
+
+
 
 
     Public Enum dataBaseType As Byte
@@ -271,13 +280,17 @@ Public Class SQLEngine
         Select Case _dbType
             Case dataBaseType.MS_ACCESS
                 ' Generar cadena en el caso de MS Access
-                tmpConn = _AccessProvider
-                If _dbPath.Length <> 0 Then
-                    tmpConn &= "Data Source=" & _dbPath & _dbName & ";"
+                If AccessConnectionString = "" Then
+                    tmpConn = _AccessProvider
+                    If _dbPath.Length <> 0 Then
+                        tmpConn &= "Data Source=" & _dbPath & _dbName & ";"
+                    Else
+                        Return ""
+                    End If
+                    tmpConn &= _AccessConnTrailer
                 Else
-                    Return ""
+                    tmpConn = AccessConnectionString
                 End If
-                tmpConn &= _AccessConnTrailer
 
 
             Case dataBaseType.SQL_SERVER
@@ -365,6 +378,20 @@ Public Class SQLEngine
             Return False
         End If
     End Function
+
+    ''' <summary>
+    ''' Inicia el motor sql sin hacer pruebas de conexion
+    ''' </summary>
+    ''' <returns>True si inicio correctamente. False si hubo algun fallo</returns>
+    Public Function ColdBoot() As Boolean
+        If GenerateConnectionString.Length <> 0 Then
+            InitializeObjects()
+            Return True
+        Else
+            Return False
+        End If
+    End Function
+
 
 
     ''' <summary>

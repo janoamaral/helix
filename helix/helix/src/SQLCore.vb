@@ -22,6 +22,7 @@ Public Class SQLCore
     ''' <remarks></remarks>
     Public LastError As New Ermac
 
+
     Public Property ConnectionString As String
         Get
             Return _connectionString
@@ -129,6 +130,7 @@ Public Class SQLCore
     ''' <param name="Param">Lista de parametros</param>
     ''' <returns>El resultado de la operacion. TRUE se ejecuto con exito, FALSE fallo</returns>
     Public Overloads Function ExecuteNonQuery(ByVal processParam As Boolean, Optional ByVal Param As List(Of OleDbParameter) = Nothing) As Boolean
+
         Using connection As New OleDbConnection(_connectionString)
             Dim command As New OleDbCommand(_queryString, connection)
 
