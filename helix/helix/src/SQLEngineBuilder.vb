@@ -798,7 +798,24 @@ Public Class SQLEngineBuilder
                                     If splitOptions(1).Trim(" ").StartsWith("lenght") Then
                                         tmpString &= splitOptions(1).Split(":")(1).ToUpper & ")"
                                     Else
-                                        tmpString &= "150)"
+                                        If splitOptions(1).Trim(" ").ToLower.StartsWith("max") Then
+                                            tmpString &= "max)"
+                                        Else
+                                            tmpString &= "150)"
+                                        End If
+                                    End If
+                                End If
+                            Case "bin"
+                                tmpString &= "varbinary("
+                                If splitOptions.Length > 1 Then
+                                    If splitOptions(1).Trim(" ").StartsWith("lenght") Then
+                                        tmpString &= splitOptions(1).Split(":")(1).ToUpper & ")"
+                                    Else
+                                        If splitOptions(1).Trim(" ").ToLower.StartsWith("max") Then
+                                            tmpString &= "max)"
+                                        Else
+                                            tmpString &= "150)"
+                                        End If
                                     End If
                                 End If
 
@@ -811,6 +828,9 @@ Public Class SQLEngineBuilder
                             Case "time"
                                 tmpString &= "time(7)"
 
+                            Case "bin"
+                                tmpString &= "varbinary(max)"
+
                             Case "timestamp"
                                 tmpString &= "datetime"
 
@@ -819,6 +839,9 @@ Public Class SQLEngineBuilder
 
                             Case "int"
                                 tmpString &= "int"
+
+                            Case "long"
+                                tmpString &= "bigint"
 
                             Case "longint"
                                 tmpString &= "bigint"

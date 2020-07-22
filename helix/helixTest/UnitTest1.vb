@@ -10,7 +10,7 @@ Imports helix
         a.dbType = SQLEngine.dataBaseType.MYSQL
         a.Path = "200.42.62.140"
         a.Username = "soccam"
-        a.Password = "Camara2017!"
+        a.Password = ""
         a.Port = 3306
         Debug.Print(a.ConnectionString)
         Assert.IsTrue(a.Start)
@@ -20,9 +20,9 @@ Imports helix
         Dim a As New SQLEngine
         a.DatabaseName = "soccam"
         a.dbType = SQLEngine.dataBaseType.MYSQL
-        a.Path = "200.42.62.140"
+        a.Path = "200.42.62.001"
         a.Username = "soccam"
-        a.Password = "Camara2017!"
+        a.Password = ""
         a.Port = 3306
         a.Start()
         With a.Query
@@ -42,9 +42,9 @@ Imports helix
         Dim a As New SQLEngine
         a.DatabaseName = "soccam"
         a.dbType = SQLEngine.dataBaseType.MYSQL
-        a.Path = "200.42.62.140"
+        a.Path = "200.42.62.001"
         a.Username = "soccam"
-        a.Password = "Camara2017!"
+        a.Password = ""
         a.Port = 3306
         a.Start()
         With a.Insert

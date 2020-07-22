@@ -168,6 +168,7 @@ Public Class SQLCore
     Public Overloads Function ExecuteNonQuery(ByVal processParam As Boolean, Optional ByVal Param As List(Of SqlParameter) = Nothing) As Boolean
         Using connection As New SqlConnection(_connectionString)
             Dim command As New SqlCommand(_queryString, connection)
+            command.CommandTimeout = 3000
 
             If processParam = True Then
                 Dim tmpParam As SqlParameter

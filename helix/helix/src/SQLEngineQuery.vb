@@ -28,6 +28,29 @@ Public Class SQLEngineQuery
     Public Const OPERATOR_LIKE As String = " LIKE ? "
     Public Const OPERATOR_BETWEEN As String = " BETWEEN ? AND ? "
 
+    Public Shared Function OperatorToString(ByVal op As OperatorCriteria) As String
+        Select Case op
+            Case OperatorCriteria.Igual
+                Return OPERATOR_IGUAL
+            Case OperatorCriteria.Distinto
+                Return OPERATOR_DISTINTO
+            Case OperatorCriteria.Menor
+                Return OPERATOR_MENOR
+            Case OperatorCriteria.MenorIgual
+                Return OPERATOR_MENORIGUAl
+            Case OperatorCriteria.Mayor
+                Return OPERATOR_MAYOR
+            Case OperatorCriteria.MayorIgual
+                Return OPERATOR_MAYORIGUAl
+            Case OperatorCriteria.LikeString
+                Return OPERATOR_LIKE
+            Case OPERATOR_BETWEEN
+                Return OPERATOR_BETWEEN
+            Case Else
+                Return ""
+        End Select
+    End Function
+
     Private Structure CountSum
         Dim sqlFunction As String
         Dim rowName As String
@@ -329,7 +352,6 @@ Public Class SQLEngineQuery
             Else
                 Return _queryResultReader.Item(columnName)
             End If
-
         Else
             Return False
         End If
@@ -601,6 +623,10 @@ Public Class SQLEngineQuery
 
             End Select
         End With
+    End Function
+
+    Public Function GetFullQuery() As String
+        Return GenerateQuery(False)
     End Function
 
 
