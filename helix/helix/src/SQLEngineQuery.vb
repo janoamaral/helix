@@ -295,6 +295,33 @@ Public Class SQLEngineQuery
         End Select
     End Sub
 
+    ''' <summary>
+    ''' Agrega un parametro a la lista de parametros. Para usar en la interpolación de WHEREString
+    ''' </summary>
+    ''' <param name="param">Un objeto para ser usado posteriormente en un comando SQL</param>
+    ''' <returns>Retorna el caracter ? para ser usado en la construcción de la query</returns>
+    Public Function p(ByVal param As Object) As String
+        Select Case _dbType
+            Case 0
+                Dim oleparam As New OleDbParameter
+                oleparam.Value = param
+                oleparam.ParameterName = "@p" & _QueryParamOle.Count
+                _QueryParamOle.Add(oleparam)
+            Case 1
+                Dim sqlparam As New SqlParameter
+                sqlparam.Value = param
+                sqlparam.ParameterName = "@p" & _QueryParamSql.Count
+                _QueryParamSql.Add(sqlparam)
+            Case 2
+                Dim mySqlparam As New MySqlParameter
+                mySqlparam.Value = param
+                mySqlparam.ParameterName = "@p" & _QueryParamMySql.Count
+                _QueryParamMySql.Add(mySqlparam)
+        End Select
+
+        Return "?"
+    End Function
+
 
     ''' <summary>
     ''' Agrega una nueva columna a la clausula SELECT
